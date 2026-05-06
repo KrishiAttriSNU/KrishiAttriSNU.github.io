@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('gf-theme') || 'light');</script>
   <style>
     body { background: #e8e2da; }
     .poster-wrap {
@@ -201,6 +202,23 @@
     @media (max-width: 1000px) {
       .poster { transform: scale(0.55); }
     }
+    [data-theme="dark"] body { background: #131110; }
+    [data-theme="dark"] .poster-toolbar { background: #1a1714; border-color: #2e2924; }
+    [data-theme="dark"] .poster-toolbar a { color: #ede8e2; }
+    [data-theme="dark"] .poster-toolbar .meta { color: #786e64; }
+    [data-theme="dark"] .poster {
+      background: #1a1714; border-color: #2e2924;
+      box-shadow: 0 30px 80px -20px rgba(0,0,0,0.5);
+    }
+    [data-theme="dark"] .poster h1, [data-theme="dark"] .poster h2,
+    [data-theme="dark"] .poster h3, [data-theme="dark"] .poster h4 { color: #ede8e2; }
+    [data-theme="dark"] .panel { background: #221e1a !important; border-color: #2e2924 !important; }
+    [data-theme="dark"] .panel h3 { color: #ede8e2 !important; }
+    [data-theme="dark"] .panel p, [data-theme="dark"] .panel li, [data-theme="dark"] .panel div { color: #b8b0a8 !important; }
+    [data-theme="dark"] .panel strong { color: #ede8e2 !important; }
+    [data-theme="dark"] .panel .stat { background: #1a1714; }
+    [data-theme="dark"] .panel .eq { background: #221e1a; border-left-color: #c17c3a; }
+    [data-theme="dark"] .poster .kbd { background: #2e2924; color: #b8b0a8; border-color: #3e3830; }
   </style>
 </head>
 <body>
@@ -212,6 +230,12 @@
       <span class="meta">A0 portrait · 1440 × 1018 px @ screen scale</span>
     </div>
     <div class="left">
+      <button class="theme-toggle" id="theme-toggle" title="Toggle light / dark mode" aria-label="Toggle light / dark mode" style="margin-right:8px;">
+        <span class="knob">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </span>
+      </button>
       <span class="meta">Press <span class="kbd">⌘</span> <span class="kbd">P</span> to print / save as PDF</span>
       <button class="btn" onclick="window.print()" style="font-size:10px; padding:6px 12px;">Print poster</button>
     </div>
@@ -557,6 +581,19 @@
 </div>
 
 <script src="viz.js"></script>
+<script>
+  (function() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var html = document.documentElement;
+        var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('gf-theme', next);
+      });
+    }
+  })();
+</script>
 <script>
   GFViz.reconstruction(document.getElementById('mini-recon'), { seed: 12 });
   GFViz.poseTracking(document.getElementById('mini-pose'), { seed: 23 });

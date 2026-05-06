@@ -15,7 +15,7 @@
 
   <aside class="nav">
     <div class="brand">
-      <div class="mark"><span class="dot"></span><span>GaussianFeels · v0.9</span></div>
+      <div class="mark"><span class="dot"></span><span>GaussianFeels</span></div>
       <div class="title"><strong>GaussianFeels</strong> · Tactile-Enhanced Gaussian Splatting</div>
       <div class="sub">M.S. Thesis · SNU ME · Spring 2026</div>
     </div>
@@ -62,7 +62,6 @@
       <canvas class="hero-canvas" id="hero-canvas"></canvas>
 
       <div class="hero-meta">
-        <span class="pill live">Live build</span>
         <span class="pill">M.S. Thesis</span>
         <span class="pill">Spring 2026</span>
         <span class="pill">Seoul National University</span>
@@ -852,13 +851,13 @@
   };
 
   // ToC active highlight
-  const tocLinks = document.querySelectorAll('#toc a[href^="#"]');
-  const sections = [...tocLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const tocLinks = [...document.querySelectorAll('#toc a[href^="#"]')].filter(function(a) { return a.getAttribute('href') !== '#'; });
+  const sections = tocLinks.map(function(a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
   function update() {
-    const y = window.scrollY + 120;
-    let active = sections[0];
-    for (const s of sections) if (s && s.offsetTop <= y) active = s;
-    tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id)));
+    var y = window.scrollY + 120;
+    var active = sections[0];
+    for (var i = 0; i < sections.length; i++) { if (sections[i] && sections[i].offsetTop <= y) active = sections[i]; }
+    tocLinks.forEach(function(a) { a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id)); });
   }
   window.addEventListener('scroll', update, { passive: true });
   update();
