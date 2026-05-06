@@ -41,7 +41,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
 body {
   font-family: var(--sans);
   font-size: 16px;
@@ -71,7 +71,7 @@ em { font-style: italic; }
 strong { font-weight: 600; }
 
 /* ========== Layout ========== */
-.shell { display: grid; grid-template-columns: 240px 1fr; max-width: 1440px; margin: 0 auto; }
+.shell { display: grid; grid-template-columns: 240px 1fr; width: 100%; }
 
 aside.nav {
   position: sticky; top: 0; align-self: start;
@@ -99,7 +99,7 @@ aside.nav {
 .aside-foot { margin-top: auto; font-size: 11px; color: var(--ink-3); font-family: var(--mono); line-height: 1.6; }
 .aside-foot a { color: var(--ink-3); }
 
-main { min-width: 0; }
+main { min-width: 0; max-width: 1200px; }
 
 section { padding: 96px 64px; border-bottom: 1px solid var(--rule); position: relative; }
 section.tight { padding: 64px 64px; }
