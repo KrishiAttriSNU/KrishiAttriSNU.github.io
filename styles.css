@@ -332,3 +332,58 @@ footer.site h4 { color: var(--dark-panel-ink); margin-bottom: 12px; }
   .section-head { grid-template-columns: 1fr; gap: 8px; }
   .section-head .num { padding-top: 0; }
 }
+
+/* ========== Responsive — tablet (≤900px) ========== */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  aside.nav {
+    position: relative; height: auto;
+    border-right: none; border-bottom: 1px solid var(--rule);
+    padding: 20px 24px;
+    flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 16px;
+  }
+  .brand { flex: 1 1 200px; }
+  .toc { flex: 2 1 300px; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .toc-group { margin-bottom: 0; }
+  .toc-group .group-title { display: none; }
+  .aside-foot { display: none; }
+  section, .hero { padding: 56px 32px; }
+  section.tight { padding: 40px 32px; }
+  figure.full { margin-left: -32px; margin-right: -32px; }
+  .hero-canvas { display: none; }
+  .section-head { grid-template-columns: 1fr; gap: 8px; }
+  .section-head .num { padding-top: 0; }
+  .video-grid { grid-template-columns: 1fr; }
+  .failure-grid { grid-template-columns: 1fr 1fr; }
+  .cards.c3, .cards.c4 { grid-template-columns: 1fr 1fr; }
+  .status-grid { grid-template-columns: 1fr; }
+}
+
+/* ========== Responsive — mobile (≤600px) ========== */
+@media (max-width: 600px) {
+  aside.nav { padding: 16px 20px; }
+  .toc { display: none; }
+  section, .hero { padding: 40px 20px; }
+  section.tight { padding: 32px 20px; }
+  footer.site { padding: 40px 20px; }
+  footer.site .row { flex-direction: column; gap: 24px; }
+  figure.full { margin-left: -20px; margin-right: -20px; }
+  h1 { font-size: clamp(28px, 8vw, 44px); }
+  h2 { font-size: clamp(22px, 5vw, 30px); }
+  .hero .deck { font-size: 17px; }
+  .hero-meta { flex-wrap: wrap; gap: 8px; }
+  .hero-byline { gap: 20px; }
+  .hero-byline .item .v { font-size: 14px; }
+  .cards.c2, .cards.c3, .cards.c4 { grid-template-columns: 1fr; }
+  .failure-grid { grid-template-columns: 1fr; }
+  .video-grid { grid-template-columns: 1fr; }
+  .status-grid { grid-template-columns: 1fr; }
+  .pipeline { padding: 24px 16px; }
+  .math-block { padding: 14px 16px; font-size: 14px; }
+  .thtable { font-size: 12px; }
+  .thtable th, .thtable td { padding: 8px 10px; }
+  /* Downloads card button stacks on small screens */
+  .card > div[style*="justify-content:space-between"] {
+    flex-direction: column; align-items: flex-start;
+  }
+}
