@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GaussianFeels — Tactile-Enhanced Gaussian Splatting for In-Hand Manipulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="shell">
+
+  <aside class="nav">
+    <div class="brand">
+      <div class="mark"><span class="dot"></span><span>GaussianFeels · v0.9</span></div>
+      <div class="title">Tactile&#8209;Enhanced Gaussian Splatting</div>
+      <div class="sub">M.S. Thesis · SNU ME · Spring 2026</div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="toc-group">
+        <div class="group-title">Thesis</div>
+        <a href="#problem"><span class="num">01</span><span class="label">Problem</span></a>
+        <a href="#method"><span class="num">02</span><span class="label">Method</span></a>
+        <a href="#pipeline"><span class="num">03</span><span class="label">Pipeline</span></a>
+      </div>
+      <div class="toc-group">
+        <div class="group-title">Results</div>
+        <a href="#videos"><span class="num">04</span><span class="label">Experiments</span></a>
+        <a href="#benchmarks"><span class="num">05</span><span class="label">Benchmarks</span></a>
+        <a href="#failures"><span class="num">06</span><span class="label">Failure cases</span></a>
+      </div>
+      <div class="toc-group">
+        <div class="group-title">Project</div>
+        <a href="#status"><span class="num">07</span><span class="label">Status</span></a>
+        <a href="poster.html"><span class="num">→</span><span class="label">Poster page</span></a>
+      </div>
+    </nav>
+
+    <div class="aside-foot">
+      Krishi Attri · 2024-24243<br/>
+      Advisor: Prof. Yong-Lae Park<br/>
+      <a href="#status">Thesis PDF · pending defense</a>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ======================================================== HERO -->
+    <section class="hero">
+      <canvas class="hero-canvas" id="hero-canvas"></canvas>
+
+      <div class="hero-meta">
+        <span class="pill live">Live build</span>
+        <span class="pill">M.S. Thesis</span>
+        <span class="pill">Spring 2026</span>
+        <span class="pill">Seoul National University</span>
+      </div>
+
+      <h1>Real-time multimodal 3D reconstruction with <span class="accent">tactile-enhanced</span> Gaussian splatting.</h1>
+
+      <p class="deck">
+        GaussianFeels is an online visuo-tactile reconstruction and tracking system built around an explicit object-centric 3D Gaussian map &mdash; updated under hand-induced occlusion, tracked when pose supervision is removed, and exported to manipulation from frame zero.
+      </p>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn" href="#method">Read the method <span class="arrow">→</span></a>
+        <a class="btn ghost" href="poster.html">Conference poster <span class="arrow">→</span></a>
+        <a class="btn ghost" href="#status">Thesis PDF</a>
+      </div>
+
+      <div class="hero-byline">
+        <div class="item">
+          <h4>Author</h4>
+          <div class="v">Krishi Attri<small>Department of Mechanical Engineering</small></div>
+        </div>
+        <div class="item">
+          <h4>Advisor</h4>
+          <div class="v">Prof. Yong-Lae Park<small>Soft Robotics &amp; Bionics Lab</small></div>
+        </div>
+        <div class="item">
+          <h4>Submission</h4>
+          <div class="v">Spring 2026<small>Seoul National University</small></div>
+        </div>
+        <div class="item">
+          <h4>Keywords</h4>
+          <div class="v" style="font-size:13px; line-height:1.7;">
+            <span class="tag tactile">tactile sensing</span>
+            <span class="tag measure">RGB-D</span>
+            <span class="tag gauss">3D Gaussian Splatting</span>
+            <span class="tag muted">SLAM</span>
+            <span class="tag muted">manipulation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== PROBLEM -->
+    <section id="problem">
+      <div class="section-head">
+        <div class="num">01 / Problem</div>
+        <div>
+          <h4>Why one camera isn't enough</h4>
+          <h2>The geometry that matters during in-hand manipulation is the geometry the camera can't see.</h2>
+          <p class="lead">During grasping and reorientation, the surfaces a robot needs to reason about are exactly the ones occluded by the hand and fingertips. Tactile sensing measures those regions &mdash; but only over a small contact patch. A practical manipulation system needs both.</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+        <div class="cards c3">
+          <div class="card">
+            <div class="label">Modality A · global</div>
+            <div class="val">RGB-D<span class="unit">camera</span></div>
+            <p>Dense observations of exposed surfaces. Fails behind the hand and the fingertips during contact.</p>
+          </div>
+          <div class="card">
+            <div class="label">Modality B · local</div>
+            <div class="val">DIGIT<span class="unit">tactile</span></div>
+            <p>Direct contact geometry at the manipulation interface. Tiny footprint &mdash; only a few square centimeters.</p>
+          </div>
+          <div class="card">
+            <div class="label">Joint state</div>
+            <div class="val">Hand<span class="unit">proprio.</span></div>
+            <p>Forward-kinematic grasp center, finger poses, contact constraints. Used to seed and bound estimates.</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="label">Research claim</div>
+          <p>An <em>explicit object-centric Gaussian map</em> can serve as the shared state for contact-rich manipulation: updated online from synchronized RGB-D, tactile, and proprioceptive observations &mdash; tracked directly when object-pose supervision is removed &mdash; and exposed immediately to downstream manipulation modules as a progressively improving object model.</p>
+        </div>
+
+        <h3 style="margin-top:48px;">Three problems, one representation</h3>
+        <p>The thesis argues that prior systems pick a representation that solves one of these and forces a re-encode for the other two. Implicit fields render and supervise but don't export cleanly to a policy. Mesh-only pipelines export but can't be updated under contact. Point clouds update easily but render poorly. An explicit Gaussian state covers all three roles &mdash; and lets pose tracking sit in the middle of the loop.</p>
+
+        <div class="cards c3" style="margin-top:24px;">
+          <div class="card" style="border-color:var(--measure);">
+            <div class="label" style="color:var(--measure);">Online state</div>
+            <p style="margin-top:8px;">Sparse Gaussian updates with contact-aware population management and an active-budget cap so the runtime stays online.</p>
+          </div>
+          <div class="card" style="border-color:var(--tactile);">
+            <div class="label" style="color:var(--tactile);">Tracking reference</div>
+            <p style="margin-top:8px;">The frozen-map signed-distance field exposes a differentiable residual the Theseus optimizer can converge on under heavy occlusion.</p>
+          </div>
+          <div class="card" style="border-color:var(--gauss);">
+            <div class="label" style="color:var(--gauss);">Manipulation export</div>
+            <p style="margin-top:8px;">PLY exports and provenance-labeled point clouds hand off to a policy — measured surfaces flagged separately from generated ones.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== METHOD -->
+    <section id="method" class="dark">
+      <div class="section-head">
+        <div class="num" style="color:oklch(0.6 0.005 80);">02 / Method</div>
+        <div>
+          <h4 style="color:var(--tactile);">Object-centric Gaussian map · pose tracker · occlusion-aware loss</h4>
+          <h2>Four parts, all reconstructing the same object frame.</h2>
+          <p class="lead" style="color:oklch(0.78 0.005 80);">Sensor ingestion synchronizes RGB-D, segmentation, tactile contacts, and hand state. The Gaussian map lives in object coordinates and is synchronized to world only when rendering or supervision needs it. The pose tracker sits in the middle of the loop — it's the transform that links observations to the map.</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+        <!-- Method diagram (SVG) -->
+        <figure class="full" style="margin: 32px 64px;">
+          <div class="frame dark" style="padding: 56px 48px; background: oklch(0.18 0.008 80);">
+            <svg viewBox="0 0 1200 460" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+              <defs>
+                <marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                  <path d="M0,0 L0,6 L9,3 z" fill="oklch(0.7 0.005 80)"/>
+                </marker>
+                <marker id="arrW" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                  <path d="M0,0 L0,6 L9,3 z" fill="oklch(0.72 0.16 50)"/>
+                </marker>
+              </defs>
+
+              <!-- Sensor column -->
+              <g font-family="JetBrains Mono, monospace" font-size="12" fill="oklch(0.85 0.005 80)">
+                <text x="60" y="44" font-size="10" fill="oklch(0.6 0.005 80)" letter-spacing="2">SENSOR INGESTION</text>
+
+                <g transform="translate(40, 70)">
+                  <rect width="180" height="56" rx="4" fill="oklch(0.22 0.008 80)" stroke="oklch(0.35 0.01 80)"/>
+                  <text x="14" y="22">RGB-D + mask</text>
+                  <text x="14" y="40" font-size="10" fill="oklch(0.62 0.13 240)">It · Dt · Mt · K · TWC</text>
+                </g>
+                <g transform="translate(40, 150)">
+                  <rect width="180" height="56" rx="4" fill="oklch(0.22 0.008 80)" stroke="oklch(0.35 0.01 80)"/>
+                  <text x="14" y="22">Tactile (DIGIT)</text>
+                  <text x="14" y="40" font-size="10" fill="oklch(0.72 0.16 50)">Pttac · Nttac (heightmap)</text>
+                </g>
+                <g transform="translate(40, 230)">
+                  <rect width="180" height="56" rx="4" fill="oklch(0.22 0.008 80)" stroke="oklch(0.35 0.01 80)"/>
+                  <text x="14" y="22">Hand state</text>
+                  <text x="14" y="40" font-size="10" fill="oklch(0.7 0.005 80)">ht · grasp center FK</text>
+                </g>
+                <g transform="translate(40, 310)">
+                  <rect width="180" height="56" rx="4" fill="oklch(0.22 0.008 80)" stroke="oklch(0.35 0.01 80)" stroke-dasharray="3 3"/>
+                  <text x="14" y="22" fill="oklch(0.7 0.005 80)">GT pose (optional)</text>
+                  <text x="14" y="40" font-size="10" fill="oklch(0.6 0.005 80)">TWO,GT · map/slam only</text>
+                </g>
+              </g>
+
+              <!-- arrows to synchronizer -->
+              <g stroke="oklch(0.5 0.005 80)" stroke-width="1.2" fill="none" marker-end="url(#arr)">
+                <path d="M 220 98 L 320 220"/>
+                <path d="M 220 178 L 320 230"/>
+                <path d="M 220 258 L 320 240"/>
+                <path d="M 220 338 L 320 252"/>
+              </g>
+
+              <!-- Synchronized frame Ft -->
+              <g font-family="JetBrains Mono, monospace" font-size="12" fill="oklch(0.85 0.005 80)">
+                <g transform="translate(320, 200)">
+                  <rect width="160" height="80" rx="6" fill="oklch(0.25 0.01 80)" stroke="oklch(0.72 0.16 50)" stroke-width="1.5"/>
+                  <text x="80" y="32" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="oklch(0.72 0.16 50)">SYNCHRONIZED</text>
+                  <text x="80" y="52" text-anchor="middle" font-size="14" fill="oklch(0.95 0.005 80)" font-style="italic">Ft</text>
+                  <text x="80" y="70" text-anchor="middle" font-size="9" fill="oklch(0.7 0.005 80)">eq. (4.1)</text>
+                </g>
+              </g>
+
+              <!-- Pose tracker -->
+              <g stroke="oklch(0.5 0.005 80)" stroke-width="1.2" fill="none" marker-end="url(#arr)">
+                <path d="M 480 240 L 560 240"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="11" fill="oklch(0.85 0.005 80)">
+                <g transform="translate(560, 180)">
+                  <rect width="220" height="120" rx="6" fill="oklch(0.2 0.008 80)" stroke="oklch(0.62 0.13 240)" stroke-width="1.5"/>
+                  <text x="110" y="22" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="oklch(0.62 0.13 240)">POSE TRACKER</text>
+                  <text x="14" y="44" font-size="10" fill="oklch(0.85 0.005 80)">Frame-0: coord-descent + tactile</text>
+                  <text x="14" y="62" font-size="10" fill="oklch(0.85 0.005 80)">ICP gate: fitness, RMSE, Δ</text>
+                  <text x="14" y="80" font-size="10" fill="oklch(0.85 0.005 80)">Frozen-map SDF residual</text>
+                  <text x="14" y="98" font-size="10" fill="oklch(0.85 0.005 80)">Theseus SE(3) two-stage</text>
+                  <text x="110" y="114" text-anchor="middle" font-size="9" fill="oklch(0.6 0.005 80)">→ TtWO</text>
+                </g>
+              </g>
+
+              <!-- Gaussian map -->
+              <g stroke="oklch(0.5 0.005 80)" stroke-width="1.2" fill="none" marker-end="url(#arr)">
+                <path d="M 780 240 L 860 240"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="11" fill="oklch(0.85 0.005 80)">
+                <g transform="translate(860, 130)">
+                  <rect width="240" height="220" rx="6" fill="oklch(0.2 0.008 80)" stroke="oklch(0.72 0.12 145)" stroke-width="1.5"/>
+                  <text x="120" y="22" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="oklch(0.72 0.12 145)">OBJECT-CENTRIC MAP</text>
+
+                  <!-- mini gaussian splat illustration -->
+                  <g transform="translate(40, 38)">
+                    <ellipse cx="40" cy="35" rx="22" ry="10" fill="oklch(0.62 0.13 240 / 0.5)" transform="rotate(-20 40 35)"/>
+                    <ellipse cx="55" cy="50" rx="14" ry="8" fill="oklch(0.62 0.13 240 / 0.5)" transform="rotate(30 55 50)"/>
+                    <ellipse cx="80" cy="40" rx="20" ry="9" fill="oklch(0.72 0.16 50 / 0.6)" transform="rotate(15 80 40)"/>
+                    <ellipse cx="100" cy="55" rx="12" ry="7" fill="oklch(0.72 0.16 50 / 0.6)" transform="rotate(-10 100 55)"/>
+                    <ellipse cx="120" cy="42" rx="16" ry="8" fill="oklch(0.62 0.13 240 / 0.5)"/>
+                    <ellipse cx="60" cy="68" rx="18" ry="9" fill="oklch(0.62 0.13 240 / 0.5)" transform="rotate(45 60 68)"/>
+                  </g>
+
+                  <text x="14" y="138" font-size="10">μiO · qiO · siO · αi · ci</text>
+                  <text x="14" y="156" font-size="10" fill="oklch(0.7 0.005 80)">contact-aware spawn + boost</text>
+                  <text x="14" y="174" font-size="10" fill="oklch(0.7 0.005_80)">freeze inactive · budget cap</text>
+                  <text x="14" y="192" font-size="10" fill="oklch(0.72 0.16 50)">tactile-region density boost</text>
+                  <text x="14" y="210" font-size="9" fill="oklch(0.6 0.005 80)">eqs. (4.9–4.12)</text>
+                </g>
+              </g>
+
+              <!-- Loss / supervision -->
+              <g stroke="oklch(0.72 0.16 50)" stroke-width="1.2" fill="none" marker-end="url(#arrW)">
+                <path d="M 980 350 C 980 400, 700 410, 670 360"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.72 0.16 50)">
+                <text x="700" y="408">occlusion-aware reweighting · eq. (4.13–4.17)</text>
+              </g>
+
+              <!-- Loop back arrow (frozen map -> tracker) -->
+              <g stroke="oklch(0.5 0.005 80)" stroke-width="1" fill="none" stroke-dasharray="3 3" marker-end="url(#arr)">
+                <path d="M 860 200 C 800 130, 700 130, 670 175"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="9" fill="oklch(0.6 0.005 80)">
+                <text x="730" y="120">frozen anchors qi, ni</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption class="figcap"><span class="figlabel">Figure 4.1 (this site).</span> Per-frame data flow. Pose tracking links the synchronized observations Ft to the Gaussian state in object coordinates; supervision is computed in world frame and reweighted by the occlusion ratio.</figcaption>
+        </figure>
+
+        <h3 style="margin-top:32px;">2.1 · Frozen-map signed distance</h3>
+        <p>Tracking samples object pixels from the current depth image, transforms those points into the world frame, and minimizes a signed-distance residual against a frozen anchor cloud (qi, ni) sampled from recent keyframes. Weights fall off Gaussian-like with distance; the result is a smooth analogue of a point-cloud SDF.</p>
+
+        <div class="math-block">
+          w<sub>i</sub>(p) = exp(− ‖p − q<sub>i</sub>‖² / 2σ²)<span class="eq-num">(4.4)</span><br/>
+          q̃(p) = Σᵢ w<sub>i</sub> q<sub>i</sub> / Σᵢ w<sub>i</sub><span class="eq-num">(4.5)</span><br/>
+          ñ(p) = Σᵢ w<sub>i</sub> n<sub>i</sub> / ‖·‖<span class="eq-num">(4.6)</span><br/>
+          d<sub>M</sub>(p) = (p − q̃(p))ᵀ ñ(p)<span class="eq-num">(4.7)</span>
+        </div>
+
+        <h3 style="margin-top:48px;">2.2 · Pose objective</h3>
+        <p>For frames after the seed, the runtime samples object pixels, lifts them, and optimizes only the latest pose in a sliding window. The objective combines a frozen-map residual on camera and tactile points with temporal and ICP priors:</p>
+
+        <div class="math-block" style="font-size:15px;">
+          min<sub>T<sup>t</sup><sub>WO</sub></sub>  Σ<sub>p ∈ Pcam</sub> d<sub>M</sub>(T<sup>t</sup><sub>OW</sub> p)² + λ<sub>tac</sub> Σ<sub>p ∈ Ptac</sub> d<sub>M</sub>(T<sup>t</sup><sub>OW</sub> p)²<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;+ λ<sub>tr</sub> ‖t<sub>t</sub> − t<sub>t-1</sub>‖² + λ<sub>rot</sub> ‖log(R<sub>t-1</sub>ᵀ R<sub>t</sub>)‖²<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;+ λ<sub>icp,t</sub> ‖t<sub>t</sub> − t̂<sup>icp</sup><sub>t</sub>‖² + λ<sub>icp,r</sub> ‖log(R̂<sup>icpᵀ</sup> R<sub>t</sub>)‖²<span class="eq-num">(4.8)</span>
+        </div>
+
+        <h3 style="margin-top:48px;">2.3 · Occlusion-aware reweighting</h3>
+        <p>RGB and depth residuals become misleading when the hand fills a large fraction of the object view. The trainer monitors an occlusion ratio ρ<sub>occ</sub> from a dilated foreground-and-edge mask and reweights the four core supervision channels online:</p>
+
+        <div class="math-block">
+          s<sub>vis</sub> = 1 − ρ<sub>occ</sub>(1 − w<sub>min</sub>)<span class="eq-num">(4.14)</span><br/>
+          λ′<sub>rgb</sub> = s<sub>vis</sub> λ<sub>rgb</sub> ,&nbsp; λ′<sub>depth</sub> = s<sub>vis</sub> λ<sub>depth</sub><span class="eq-num">(4.15–16)</span><br/>
+          λ′<sub>tactile</sub> = (1 + β ρ<sub>occ</sub>) λ<sub>tactile</sub><span class="eq-num">(4.17)</span>
+        </div>
+
+        <p>With w<sub>min</sub> = 0.2 and β = 2, tactile supervision overtakes the unoccluded visual baseline at ρ<sub>occ</sub> ≈ 0.4 &mdash; the point at which the hand starts dominating the camera view.</p>
+
+        <h3 style="margin-top:48px;">2.4 · Manipulation-side completion</h3>
+        <p>A second process bootstraps a frame-0 estimate from a single RGBA crop using <span class="mono">Hunyuan3D-2-mini</span>, an orientation-variant search, and a registration stage that solves the model-to-object transform. As the SLAM loop accumulates measurements, generated geometry is progressively replaced by measured geometry &mdash; with provenance preserved so the policy knows which surfaces are real.</p>
+      </div>
+    </section>
+
+    <!-- ======================================================== PIPELINE -->
+    <section id="pipeline">
+      <div class="section-head">
+        <div class="num">03 / Pipeline</div>
+        <div>
+          <h4>Per-frame runtime</h4>
+          <h2>Two processes, one shared object frame.</h2>
+          <p class="lead">SLAM runs on one GPU, manipulation-side completion on another. The frame-0 payload bootstraps a Hunyuan3D-2-mini prior; later frames progressively replace generated geometry with measured geometry as the episode unfolds.</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+        <div class="pipeline">
+          <svg viewBox="0 0 1200 380" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="oklch(0.45 0.01 80)"/>
+              </marker>
+              <pattern id="dots" patternUnits="userSpaceOnUse" width="6" height="6">
+                <circle cx="3" cy="3" r="0.6" fill="oklch(0.6 0.005 80)"/>
+              </pattern>
+            </defs>
+
+            <!-- timeline ruler -->
+            <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.5 0.005 80)">
+              <line x1="60" y1="40" x2="1140" y2="40" stroke="oklch(0.7 0.008 80)" stroke-width="1"/>
+              <g>
+                <line x1="60" y1="36" x2="60" y2="44" stroke="oklch(0.5 0.005 80)"/><text x="60" y="28" text-anchor="middle">t=0</text>
+                <line x1="240" y1="36" x2="240" y2="44" stroke="oklch(0.5 0.005 80)"/><text x="240" y="28" text-anchor="middle">t=1</text>
+                <line x1="500" y1="36" x2="500" y2="44" stroke="oklch(0.5 0.005 80)"/><text x="500" y="28" text-anchor="middle">t=k</text>
+                <line x1="800" y1="36" x2="800" y2="44" stroke="oklch(0.5 0.005 80)"/><text x="800" y="28" text-anchor="middle">t=k+m</text>
+                <line x1="1140" y1="36" x2="1140" y2="44" stroke="oklch(0.5 0.005 80)"/><text x="1140" y="28" text-anchor="middle">t=N</text>
+              </g>
+            </g>
+
+            <!-- SLAM track -->
+            <g font-family="JetBrains Mono, monospace" font-size="11" fill="oklch(0.18 0.01 80)">
+              <text x="60" y="80" font-size="10" letter-spacing="1.5" fill="oklch(0.4 0.005 80)">SLAM PROCESS · GPU 0</text>
+
+              <!-- frame-0 box -->
+              <rect x="60" y="92" width="160" height="80" rx="4" fill="oklch(0.97 0.008 80)" stroke="oklch(0.62 0.13 240)" stroke-width="1.5"/>
+              <text x="74" y="116" font-size="11" font-weight="600">Frame 0</text>
+              <text x="74" y="134" font-size="10" fill="oklch(0.4 0.005 80)">coord-descent search</text>
+              <text x="74" y="150" font-size="10" fill="oklch(0.4 0.005 80)">tactile-aware seed</text>
+              <text x="74" y="166" font-size="10" fill="oklch(0.4 0.005 80)">spawn map</text>
+
+              <!-- per-frame loop -->
+              <rect x="240" y="92" width="540" height="80" rx="4" fill="oklch(0.97 0.008 80)" stroke="oklch(0.62 0.13 240)" stroke-width="1"/>
+              <text x="254" y="116" font-size="11" font-weight="600">Per-frame SLAM loop</text>
+              <text x="254" y="134" font-size="10" fill="oklch(0.4 0.005 80)">depth ICP gate → Theseus pose opt → map sync → loss step</text>
+              <text x="254" y="150" font-size="10" fill="oklch(0.4 0.005 80)">contact spawn · density boost · freeze inactive</text>
+              <text x="254" y="166" font-size="10" fill="oklch(0.72 0.16 50)">occlusion-aware reweight: λ′rgb, λ′depth, λ′tactile</text>
+
+              <!-- export -->
+              <rect x="800" y="92" width="180" height="80" rx="4" fill="oklch(0.97 0.008 80)" stroke="oklch(0.62 0.13 240)" stroke-width="1"/>
+              <text x="814" y="116" font-size="11" font-weight="600">Export</text>
+              <text x="814" y="134" font-size="10" fill="oklch(0.4 0.005 80)">PLY · world poses</text>
+              <text x="814" y="150" font-size="10" fill="oklch(0.4 0.005 80)">eval depth + F-score</text>
+              <text x="814" y="166" font-size="10" fill="oklch(0.4 0.005 80)">runtime metrics</text>
+            </g>
+
+            <!-- manipulation track -->
+            <g font-family="JetBrains Mono, monospace" font-size="11" fill="oklch(0.18 0.01 80)">
+              <text x="60" y="220" font-size="10" letter-spacing="1.5" fill="oklch(0.4 0.005 80)">MANIPULATION PROCESS · GPU 1</text>
+
+              <rect x="60" y="232" width="160" height="80" rx="4" fill="oklch(0.97 0.008 80)" stroke="oklch(0.72 0.16 50)" stroke-width="1.5"/>
+              <text x="74" y="256" font-size="11" font-weight="600">Bootstrap (t=0)</text>
+              <text x="74" y="274" font-size="10" fill="oklch(0.45 0.005 80)">RGBA crop +</text>
+              <text x="74" y="290" font-size="10" fill="oklch(0.45 0.005 80)">Hunyuan3D-2-mini</text>
+              <text x="74" y="306" font-size="10" fill="oklch(0.45 0.005 80)">orient. variant search</text>
+
+              <rect x="240" y="232" width="540" height="80" rx="4" fill="oklch(0.97 0.008 80)" stroke="oklch(0.72 0.16 50)" stroke-width="1"/>
+              <text x="254" y="256" font-size="11" font-weight="600">Progressive replacement</text>
+              <text x="254" y="274" font-size="10" fill="oklch(0.45 0.005 80)">measured geometry overwrites generated, by region</text>
+              <text x="254" y="290" font-size="10" fill="oklch(0.45 0.005 80)">gap-filler debug cloud (internal seam stabilizer)</text>
+              <text x="254" y="306" font-size="10" fill="oklch(0.45 0.005 80)">provenance labels preserved per point</text>
+
+              <rect x="800" y="232" width="180" height="80" rx="4" fill="oklch(0.97 0.008 80)" stroke="oklch(0.72 0.16 50)" stroke-width="1"/>
+              <text x="814" y="256" font-size="11" font-weight="600">Policy export</text>
+              <text x="814" y="274" font-size="10" fill="oklch(0.45 0.005 80)">point cloud +</text>
+              <text x="814" y="290" font-size="10" fill="oklch(0.45 0.005 80)">{measured, generated}</text>
+              <text x="814" y="306" font-size="10" fill="oklch(0.45 0.005 80)">flags</text>
+            </g>
+
+            <!-- queue arrows between tracks -->
+            <g stroke="oklch(0.45 0.01 80)" stroke-width="1" fill="none" marker-end="url(#arr2)" stroke-dasharray="3 3">
+              <path d="M 140 172 L 140 232"/>
+              <path d="M 510 172 L 510 232"/>
+              <path d="M 510 232 L 510 172"/>
+              <path d="M 870 232 L 870 172"/>
+            </g>
+            <g font-family="JetBrains Mono, monospace" font-size="9" fill="oklch(0.5 0.005 80)">
+              <text x="148" y="208">F0 payload</text>
+              <text x="518" y="208">measured frames</text>
+              <text x="878" y="208">final map back</text>
+            </g>
+
+            <!-- pose-mode strip -->
+            <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.4 0.005 80)">
+              <text x="60" y="350" letter-spacing="1.5" font-size="10" fill="oklch(0.4 0.005 80)">POSE MODE</text>
+              <rect x="160" y="338" width="100" height="20" fill="oklch(0.62 0.13 240 / 0.15)" stroke="oklch(0.62 0.13 240)"/>
+              <text x="170" y="352" fill="oklch(0.4 0.13 245)">map</text>
+              <rect x="280" y="338" width="100" height="20" fill="oklch(0.72 0.12 145 / 0.15)" stroke="oklch(0.72 0.12 145)"/>
+              <text x="290" y="352" fill="oklch(0.4 0.12 145)">slam</text>
+              <rect x="400" y="338" width="120" height="20" fill="oklch(0.72 0.16 50 / 0.15)" stroke="oklch(0.72 0.16 50)"/>
+              <text x="410" y="352" fill="oklch(0.45 0.16 45)">true_slam</text>
+              <text x="540" y="352" fill="oklch(0.5 0.005 80)">— same SLAM loop, different pose source</text>
+            </g>
+          </svg>
+        </div>
+        <p class="figcap" style="margin-top:16px;"><span class="figlabel">Figure.</span> Two-process runtime. Solid arrows are within-process; dashed arrows are inter-process queue messages. The pose mode strip across the bottom describes which channel feeds T<sup>t</sup><sub>WO</sub> &mdash; the rest of the SLAM loop is identical across modes.</p>
+      </div>
+    </section>
+
+    <!-- ======================================================== EXPERIMENTS / VIDEOS -->
+    <section id="videos">
+      <div class="section-head">
+        <div class="num">04 / Experiments</div>
+        <div>
+          <h4>Live reconstructions · animated</h4>
+          <h2>What the system actually does, frame by frame.</h2>
+          <p class="lead">Each tile below is an interactive simulation of a different stage of the runtime — drag the timeline to scrub. Real video captures from FeelSight-Sim, FeelSight-Real, and FeelSight-Occlusion will replace these tiles after the final experiment sweep (see status section).</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+        <div class="video-grid">
+
+          <div class="video-card" id="vid-recon">
+            <div class="stage"><div class="media-slot" data-state="placeholder" data-slot="vid-recon"><canvas></canvas></div></div>
+            <div class="meta">
+              <div>
+                <h3>Online Gaussian accumulation · FeelSight-Sim</h3>
+                <p>240 frames · sparse spawn + tactile boost</p>
+              </div>
+              <button class="play" data-target="vid-recon">Pause</button>
+            </div>
+            <div class="scrubber" data-target="vid-recon"><div class="fill"></div></div>
+          </div>
+
+          <div class="video-card" id="vid-pose">
+            <div class="stage"><div class="media-slot" data-state="placeholder" data-slot="vid-pose"><canvas></canvas></div></div>
+            <div class="meta">
+              <div>
+                <h3>Pose tracking under occlusion · FeelSight-Occlusion</h3>
+                <p>SLAM mode · ρocc oscillating · tactile-dominant</p>
+              </div>
+              <button class="play" data-target="vid-pose">Pause</button>
+            </div>
+            <div class="scrubber" data-target="vid-pose"><div class="fill"></div></div>
+          </div>
+
+          <div class="video-card" id="vid-prog">
+            <div class="stage"><div class="media-slot" data-state="placeholder" data-slot="vid-prog"><canvas></canvas></div></div>
+            <div class="meta">
+              <div>
+                <h3>Progressive replacement · manipulation branch</h3>
+                <p>orange = generated prior · blue = measured</p>
+              </div>
+              <button class="play" data-target="vid-prog">Pause</button>
+            </div>
+            <div class="scrubber" data-target="vid-prog"><div class="fill"></div></div>
+          </div>
+
+          <div class="video-card" id="vid-pca">
+            <div class="stage"><div class="media-slot" data-state="placeholder" data-slot="vid-pca"><canvas></canvas></div></div>
+            <div class="meta">
+              <div>
+                <h3>Frame-0 orientation search</h3>
+                <p>staged coord-descent · 15°→8°→3°→1°</p>
+              </div>
+              <button class="play" data-target="vid-pca">Pause</button>
+            </div>
+            <div class="scrubber" data-target="vid-pca"><div class="fill"></div></div>
+          </div>
+
+        </div>
+
+        <p class="figcap" style="margin-top:24px;">
+          <span class="figlabel">Note.</span> These visualizations recreate the qualitative behavior described in Chapters 4–5 of the thesis. Final videos &mdash; rendered from saved PLY exports of the 40-trial benchmark &mdash; will be linked here once the run completes.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================== BENCHMARKS -->
+    <section id="benchmarks" class="tight">
+      <div class="section-head">
+        <div class="num">05 / Benchmarks</div>
+        <div>
+          <h4>Reconstruction quality · pose tracking · shape priors</h4>
+          <h2>How the system holds up under the saved 40-trial sweep.</h2>
+          <p class="lead">Three benchmark groups: (a) reconstruction quality on FeelSight-{Sim, Real, Occlusion}, (b) pose-tracking stability under three pose modes, and (c) frame-0 image-to-3D priors evaluated by aligned F-score at 5 mm.</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+
+        <h3>5.1 · Reconstruction quality (FeelSight family)</h3>
+        <p style="color:var(--ink-3); font-size:13px;"><span class="mono">F-5 mm ↑ · ADD-S ↓ · runtime FPS ↑ · fraction of trials reaching ≥ 50% measured surface ↑</span></p>
+        <table class="thtable">
+          <thead><tr><th>Variant</th><th>Pose mode</th><th>F@5 mm ↑</th><th>ADD-S (mm) ↓</th><th>FPS ↑</th><th>Measured ≥50% ↑</th></tr></thead>
+          <tbody>
+            <tr><td>FeelSight-Sim</td><td>map</td><td class="num">— pending —</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>FeelSight-Sim</td><td>true_slam</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>FeelSight-Real</td><td>slam</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>FeelSight-Real</td><td>true_slam</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>FeelSight-Occlusion</td><td>slam</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>FeelSight-Occlusion</td><td>true_slam</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+        <p class="figcap"><span class="figlabel">Table 6.1.</span> Reserved table for the final SLAM sweep. Numbers will be filled in from the 40-trial Optuna baseline (see Appendix A.1 of the thesis).</p>
+
+        <div class="divider"></div>
+
+        <h3>5.2 · Frame-0 shape-prior comparison <span class="tag muted" style="font-size:10px;">40 trials · F@5 mm</span></h3>
+        <p>Below is the partial benchmark already tabulated in the thesis manuscript. Hunyuan3D-2-mini is the deployed prior for the manipulation branch; the others are baselines.</p>
+
+        <table class="thtable">
+          <thead><tr><th>Method</th><th>F@5 mm (mean)</th><th>F@5 mm (median)</th><th>Wins on cuboid</th><th>Wins on articulated</th><th>Used in pipeline</th></tr></thead>
+          <tbody>
+            <tr style="background: oklch(0.72 0.16 50 / 0.06);"><td><strong>Hunyuan3D-2-mini</strong> <span class="tag tactile">deployed</span></td><td class="num">0.689</td><td class="num">0.720</td><td class="num">24/40</td><td class="num">31/40</td><td>✓ frame-0 prior</td></tr>
+            <tr><td>InstantMesh</td><td class="num">0.639</td><td class="num">0.651</td><td class="num">29/40</td><td class="num">8/40</td><td>baseline</td></tr>
+            <tr><td>Fast-SAM3D</td><td class="num">0.633</td><td class="num">0.648</td><td class="num">—</td><td class="num">—</td><td>baseline</td></tr>
+            <tr><td>TripoSR</td><td class="num">0.576</td><td class="num">0.590</td><td class="num">— (high F, blob)</td><td class="num">—</td><td>baseline</td></tr>
+            <tr><td>RGB2Point</td><td class="num">0.484</td><td class="num">0.495</td><td class="num">—</td><td class="num">—</td><td>baseline</td></tr>
+            <tr><td>Geco</td><td class="num">0.400</td><td class="num">0.411</td><td class="num">—</td><td class="num">— (collapses)</td><td>baseline</td></tr>
+          </tbody>
+        </table>
+        <p class="figcap"><span class="figlabel">Table 6.3.</span> The benchmark cannot be interpreted from F-score alone — TripoSR can outscore Hunyuan3D-2-mini on a structured cuboid trial while still rounding the object into a generic blob. Qualitative win-rate on category-faithful shapes is reported alongside F-score.</p>
+
+        <div class="divider"></div>
+
+        <h3>5.3 · Effect of frame-0 prior on downstream manipulation</h3>
+        <p>The manipulation branch hands a <em>provenance-labeled</em> object cloud to a downstream policy from t = 0. The benchmark evaluates whether the early prior helps or hurts policy success when measured geometry is still sparse.</p>
+
+        <div class="cards c4">
+          <div class="card">
+            <div class="label">Success @ t = 0.25 N</div>
+            <div class="val">— %</div>
+            <p>frame-0 prior on vs. off, FeelSight-Real</p>
+          </div>
+          <div class="card">
+            <div class="label">Success @ t = N</div>
+            <div class="val">— %</div>
+            <p>once measured fraction ≥ 80%</p>
+          </div>
+          <div class="card">
+            <div class="label">Recovery time</div>
+            <div class="val">—<span class="unit">frames</span></div>
+            <p>time to first stable grasp</p>
+          </div>
+          <div class="card">
+            <div class="label">Policy disagreement</div>
+            <div class="val">—</div>
+            <p>between generated and measured surfaces</p>
+          </div>
+        </div>
+        <p class="figcap"><span class="figlabel">Table 6.5 (reserved).</span> Cards are placeholders — they will be replaced by the final manipulation-prior ablation once policy rollouts are available.</p>
+      </div>
+    </section>
+
+    <!-- ======================================================== FAILURE CASES -->
+    <section id="failures">
+      <div class="section-head">
+        <div class="num">06 / Failure cases</div>
+        <div>
+          <h4>Where the system breaks &mdash; and why</h4>
+          <h2>Honest failures from pilot runs.</h2>
+          <p class="lead">Failure cases matter as much as benchmarks. The thesis catalogues three recurring modes; reproducing the qualitative behavior here lets future work target the right thing.</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+        <div class="failure-grid">
+
+          <div class="failure">
+            <div class="top">
+              <h3>F1 · Thin / wire-like objects</h3>
+              <span class="tag muted">map population</span>
+            </div>
+            <div class="vis"><div class="media-slot" data-state="placeholder" data-slot="fail-thin"><canvas id="fail-thin"></canvas></div></div>
+            <div class="body">
+              <p>Anisotropic Gaussians can't shrink below the contact-spawn scale floor; wire-like geometry gets covered by splats biased outside the GT line. Tactile contacts help locally but can't carry the rest of the object.</p>
+            </div>
+          </div>
+
+          <div class="failure">
+            <div class="top">
+              <h3>F2 · ICP gate rejects large motion</h3>
+              <span class="tag muted">tracking</span>
+            </div>
+            <div class="vis"><div class="media-slot" data-state="placeholder" data-slot="fail-icp"><canvas id="fail-icp"></canvas></div></div>
+            <div class="body">
+              <p>When inter-frame translation exceeds 50 mm, the ICP prior is rejected and the tracker falls back to the temporal prior alone. On rapid hand re-grasps this leaves the optimizer with too small a basin and pose lags by 1–2 frames.</p>
+            </div>
+          </div>
+
+          <div class="failure">
+            <div class="top">
+              <h3>F3 · Mask drift around DIGIT glow</h3>
+              <span class="tag muted">segmentation</span>
+            </div>
+            <div class="vis"><div class="media-slot" data-state="placeholder" data-slot="fail-mask"><canvas id="fail-mask"></canvas></div></div>
+            <div class="body">
+              <p>MobileSAM occasionally swaps the object mask for the bright DIGIT sensor glow. Median-area selection and the 60 px negative-prompt filter mitigate but don't fully solve it; outliers from drift events propagate into spawn decisions.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="callout" style="margin-top:32px;">
+          <div class="label">What the thesis says about these</div>
+          <p>Section 7.2 (Limitations) lists each of these together with the implementation hyperparameter that controls it &mdash; spawn-scale floor for F1, the four ICP gates for F2, and the MobileSAM area-selection rule for F3 &mdash; and Section 7.3 (Future Work) maps each to a concrete next step.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== STATUS -->
+    <section id="status" class="tight">
+      <div class="section-head">
+        <div class="num">07 / Status</div>
+        <div>
+          <h4>Where the thesis is right now</h4>
+          <h2>Manuscript locked, experiments running, defense scheduled.</h2>
+          <p class="lead">The thesis is in its final experimental sweep. The companion site updates as results land. Downloadable PDF will appear here after the defense.</p>
+        </div>
+      </div>
+
+      <div class="col-wide">
+        <div class="status-grid">
+          <div>
+            <h4>Timeline</h4>
+            <div class="timeline">
+              <div class="tl-item done">
+                <div class="when">Aug 2025</div>
+                <h4>Proposal accepted</h4>
+                <p>Visuo-tactile reconstruction with explicit Gaussian map &mdash; problem formulation locked.</p>
+              </div>
+              <div class="tl-item done">
+                <div class="when">Dec 2025</div>
+                <h4>SLAM runtime feature-complete</h4>
+                <p>Theseus pose optimizer, frozen-map SDF, occlusion-aware reweighting, contact-aware spawn.</p>
+              </div>
+              <div class="tl-item done">
+                <div class="when">Feb 2026</div>
+                <h4>Manipulation branch landed</h4>
+                <p>Hunyuan3D-2-mini frame-0 prior, orientation-variant search, progressive replacement.</p>
+              </div>
+              <div class="tl-item active">
+                <div class="when">Apr → May 2026</div>
+                <h4>Final experiment sweep</h4>
+                <p>40-trial Optuna baseline running on FeelSight-{Sim, Real, Occlusion}; benchmarks below populate as runs finish.</p>
+              </div>
+              <div class="tl-item">
+                <div class="when">Jun 2026</div>
+                <h4>Defense</h4>
+                <p>Committee review and oral defense at SNU Mechanical Engineering.</p>
+              </div>
+              <div class="tl-item">
+                <div class="when">Jul 2026</div>
+                <h4>Final PDF + deposit</h4>
+                <p>Bound deposit, repository freeze, downloadable thesis link goes live on this page.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4>Build progress</h4>
+            <div class="progress">
+              <div class="row" style="border-bottom:none; padding-bottom:0;">
+                <span class="k">Manuscript</span><span class="v">94%</span>
+              </div>
+              <div class="bar"><div class="fill" style="width:94%"></div></div>
+
+              <div class="row" style="border-bottom:none; padding-bottom:0;">
+                <span class="k">SLAM runtime</span><span class="v">100%</span>
+              </div>
+              <div class="bar"><div class="fill" style="width:100%; background:linear-gradient(90deg, var(--gauss), oklch(0.78 0.1 145));"></div></div>
+
+              <div class="row" style="border-bottom:none; padding-bottom:0;">
+                <span class="k">Manipulation branch</span><span class="v">100%</span>
+              </div>
+              <div class="bar"><div class="fill" style="width:100%; background:linear-gradient(90deg, var(--gauss), oklch(0.78 0.1 145));"></div></div>
+
+              <div class="row" style="border-bottom:none; padding-bottom:0;">
+                <span class="k">Experiment sweep</span><span class="v">61%</span>
+              </div>
+              <div class="bar"><div class="fill" style="width:61%"></div></div>
+
+              <div class="row" style="border-bottom:none; padding-bottom:0;">
+                <span class="k">Figures + tables (final)</span><span class="v">42%</span>
+              </div>
+              <div class="bar"><div class="fill" style="width:42%"></div></div>
+
+              <div class="row" style="border-bottom:none; padding-bottom:0;">
+                <span class="k">Companion site</span><span class="v">85%</span>
+              </div>
+              <div class="bar"><div class="fill" style="width:85%"></div></div>
+            </div>
+
+            <h4 style="margin-top:32px;">Downloads</h4>
+            <div class="cards" style="grid-template-columns: 1fr;">
+              <div class="card">
+                <div class="label">Pre-defense draft</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+                  <div>
+                    <div style="font-family:var(--serif); font-size:18px;">main.pdf · 72 pp.</div>
+                    <small>v0.9 · May 2026 · pre-defense draft</small>
+                  </div>
+                  <a class="btn ghost" href="main.pdf" download>Download <span class="arrow">→</span></a>
+                </div>
+              </div>
+              <div class="card" style="opacity:0.55;">
+                <div class="label">Final defended thesis</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+                  <div>
+                    <div style="font-family:var(--serif); font-size:18px;">main.pdf</div>
+                    <small>available after defense</small>
+                  </div>
+                  <span class="btn ghost" style="cursor:not-allowed;">— Pending —</span>
+                </div>
+              </div>
+              <div class="card">
+                <div class="label">Code &amp; checkpoints</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+                  <div>
+                    <div style="font-family:var(--serif); font-size:18px;">github.com/KrishiAttriSNU/GaussianFeels</div>
+                    <small>production codebase — SLAM + manipulation branch</small>
+                  </div>
+                  <a class="btn ghost" href="https://github.com/KrishiAttriSNU/GaussianFeels" target="_blank">View code <span class="arrow">→</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site">
+      <div class="row">
+        <div>
+          <h4>GaussianFeels</h4>
+          <div>Real-time multimodal 3D reconstruction with tactile-enhanced Gaussian splatting.</div>
+          <div style="margin-top:6px;">M.S. Thesis · Krishi Attri · Spring 2026</div>
+        </div>
+        <div>
+          <h4>Sections</h4>
+          <a href="#problem">Problem</a><br/>
+          <a href="#method">Method</a><br/>
+          <a href="#pipeline">Pipeline</a><br/>
+          <a href="#videos">Experiments</a><br/>
+          <a href="#benchmarks">Benchmarks</a>
+        </div>
+        <div>
+          <h4>More</h4>
+          <a href="#failures">Failure cases</a><br/>
+          <a href="#status">Project status</a><br/>
+          <a href="poster.html">Conference poster →</a>
+        </div>
+        <div>
+          <h4>Affiliation</h4>
+          <div>Department of Mechanical Engineering<br/>Seoul National University<br/>Advisor: Prof. Yong-Lae Park</div>
+        </div>
+      </div>
+      <div style="margin-top:32px; padding-top:16px; border-top:1px solid oklch(0.25 0.01 80); color:oklch(0.55 0.005 80); font-size:11px;">
+        Companion website built May 2026 · figures derived from the thesis manuscript · animated visualizations are illustrative.
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script src="hero.js"></script>
+<script src="viz.js"></script>
+<script>
+  // Wire up the four animated tiles
+  function wire(id, factory, opts) {
+    const card = document.getElementById(id);
+    if (!card) return;
+    const canvas = card.querySelector('canvas');
+    factory(canvas, opts);
+    const playBtn = card.querySelector('.play');
+    const fill = card.querySelector('.scrubber .fill');
+    const scrubber = card.querySelector('.scrubber');
+
+    setInterval(() => {
+      const p = canvas._getProgress ? canvas._getProgress() : 0;
+      if (fill) fill.style.width = (p * 100).toFixed(1) + '%';
+      if (playBtn) playBtn.textContent = canvas._isPlaying() ? 'Pause' : 'Play';
+    }, 100);
+
+    if (playBtn) playBtn.addEventListener('click', () => canvas._togglePlay && canvas._togglePlay());
+    if (scrubber) scrubber.addEventListener('click', (e) => {
+      const r = scrubber.getBoundingClientRect();
+      const u = (e.clientX - r.left) / r.width;
+      canvas._setProgress && canvas._setProgress(Math.max(0, Math.min(1, u)));
+    });
+  }
+
+  wire('vid-recon', GFViz.reconstruction, { seed: 12 });
+  wire('vid-pose', GFViz.poseTracking, { seed: 23 });
+  wire('vid-prog', GFViz.progReplace, { seed: 41 });
+  wire('vid-pca', GFViz.pcaSearch);
+
+  GFViz.failureThin(document.getElementById('fail-thin'));
+  GFViz.failureICP(document.getElementById('fail-icp'));
+  GFViz.failureMask(document.getElementById('fail-mask'));
+
+  // Media slot helper — call window.replaceMedia('vid-recon', '<video src="..." autoplay muted loop></video>')
+  // or window.replaceMedia('fail-thin', '<img src="..."/>'). Removes the placeholder badge.
+  window.replaceMedia = function (slotId, htmlOrUrl) {
+    const slot = document.querySelector('[data-slot="' + slotId + '"]');
+    if (!slot) { console.warn('No media slot for', slotId); return; }
+    let html = htmlOrUrl;
+    if (typeof htmlOrUrl === 'string' && !htmlOrUrl.trim().startsWith('<')) {
+      const u = htmlOrUrl;
+      if (/\.(mp4|webm|mov)$/i.test(u)) html = `<video src="${u}" autoplay muted loop playsinline></video>`;
+      else html = `<img src="${u}" alt=""/>`;
+    }
+    slot.innerHTML = html;
+    slot.setAttribute('data-state', 'live');
+  };
+
+  // ToC active highlight
+  const tocLinks = document.querySelectorAll('#toc a[href^="#"]');
+  const sections = [...tocLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function update() {
+    const y = window.scrollY + 120;
+    let active = sections[0];
+    for (const s of sections) if (s && s.offsetTop <= y) active = s;
+    tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id)));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+</script>
+</body>
+</html>

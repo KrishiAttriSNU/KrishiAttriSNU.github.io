@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GaussianFeels — Conference Poster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: oklch(0.93 0.008 80); }
+    .poster-wrap {
+      max-width: 1480px; margin: 32px auto; padding: 24px;
+    }
+    .poster-toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding: 12px 24px; background: var(--bg);
+      border: 1px solid var(--rule); border-radius: 8px;
+      font-family: var(--mono); font-size: 12px;
+    }
+    .poster-toolbar .left { display: flex; gap: 16px; align-items: center; }
+    .poster-toolbar a { color: var(--ink); text-decoration: none; }
+    .poster-toolbar .meta { color: var(--ink-3); }
+
+    .poster {
+      width: 1440px; height: 1018px; /* A0 portrait-ish 16:11 ratio for screen */
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      box-shadow: 0 30px 80px -20px oklch(0.2 0.01 80 / 0.25);
+      padding: 32px 44px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+      transform-origin: top center;
+    }
+    @media print {
+      body { background: white; margin: 0; }
+      .poster-toolbar { display: none; }
+      .poster-wrap { padding: 0; max-width: none; margin: 0; }
+      .poster { box-shadow: none; border: none; border-radius: 0; }
+      @page { size: 1440px 1018px; margin: 0; }
+    }
+
+    /* Header */
+    .poster-head {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 28px; align-items: end;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--ink);
+    }
+    .poster-head h1 {
+      font-size: 36px; line-height: 1.04; letter-spacing: -0.03em; margin: 0;
+      max-width: 30ch;
+    }
+    .poster-head h1 .accent { color: var(--tactile); }
+    .poster-head .deck {
+      font-family: var(--serif); font-weight: 400;
+      font-size: 14px; color: var(--ink-2); margin-top: 6px; max-width: 90ch;
+    }
+    .poster-head .badges { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .poster-head .meta {
+      font-family: var(--mono); font-size: 10px; color: var(--ink-2);
+      text-align: right; line-height: 1.55;
+    }
+    .poster-head .meta strong { color: var(--ink); display: block; font-size: 12px; margin-bottom: 2px; font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
+    .poster-head .meta .id { display: inline-block; padding: 2px 7px; background: var(--ink); color: var(--bg); border-radius: 100px; font-size: 9px; letter-spacing: 0.1em; margin-top: 3px; }
+
+    /* Body grid */
+    .poster-body {
+      display: grid;
+      grid-template-columns: 1.05fr 1.55fr 1.05fr;
+      gap: 14px;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .col-poster { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: hidden; }
+    .panel {
+      border: 1px solid var(--rule);
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 9px 12px;
+      display: flex; flex-direction: column; gap: 4px;
+      min-height: 0;
+    }
+    .panel h3 {
+      font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+      font-family: var(--mono); font-weight: 500; color: var(--ink-3); margin: 0 0 2px;
+    }
+    .panel h2 {
+      font-size: 15px; margin: 0; letter-spacing: -0.015em; line-height: 1.2;
+    }
+    .panel p { font-size: 11px; line-height: 1.45; color: var(--ink-2); margin: 0; max-width: none; }
+    .panel ul { margin: 2px 0 0; padding-left: 14px; font-size: 11px; line-height: 1.45; color: var(--ink-2); }
+    .panel ul li { margin-bottom: 1px; }
+    .panel ul li strong { color: var(--ink); }
+
+    .panel.dark { background: oklch(0.16 0.008 80); color: oklch(0.92 0.005 80); border-color: oklch(0.16 0.008 80); }
+    .panel.dark h2 { color: oklch(0.97 0.005 80); }
+    .panel.dark h3 { color: oklch(0.7 0.005 80); }
+    .panel.dark p { color: oklch(0.78 0.005 80); }
+
+    .panel.tactile { border-color: var(--tactile); border-width: 1px; border-left-width: 4px; }
+    .panel.measure { border-color: var(--measure); border-width: 1px; border-left-width: 4px; }
+    .panel.gauss { border-color: var(--gauss); border-width: 1px; border-left-width: 4px; }
+
+    .poster-canvas { aspect-ratio: 1.1/1; width: 100%; background: oklch(0.16 0.008 80); border-radius: 4px; overflow: hidden; }
+    .poster-canvas canvas { width: 100%; height: 100%; display: block; }
+
+    .stat-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .stat {
+      flex: 1 1 calc(50% - 6px);
+      padding: 8px 10px;
+      background: var(--bg-2);
+      border-radius: 4px;
+      border: 1px solid var(--rule);
+    }
+    .stat .k { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+    .stat .v { font-family: var(--serif); font-size: 18px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; margin-top: 2px; }
+    .stat .v small { font-size: 9.5px; color: var(--ink-3); font-family: var(--mono); margin-left: 4px; font-weight: 400; }
+
+    .eq {
+      font-family: 'Latin Modern Math', 'Cambria Math', serif;
+      font-style: italic;
+      font-size: 11px;
+      line-height: 1.5;
+      background: var(--bg-2);
+      padding: 6px 10px;
+      border-radius: 4px;
+      border-left: 2px solid var(--tactile);
+      margin: 2px 0;
+    }
+    .eq .num { float: right; color: var(--ink-3); font-family: var(--mono); font-style: normal; font-size: 9.5px; }
+
+    /* Center diagram panel */
+    .center-diagram {
+      flex: 1;
+      background: oklch(0.18 0.008 80);
+      border-radius: 6px;
+      padding: 12px 14px;
+      min-height: 0;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .center-diagram .h {
+      font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: oklch(0.72 0.16 50);
+    }
+    .center-diagram svg { width: 100%; height: 100%; flex: 1; min-height: 0; }
+
+    .results-table {
+      width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px;
+    }
+    .results-table th, .results-table td { padding: 3px 6px; border-bottom: 1px solid var(--rule); text-align: left; font-size: 10px; }
+    .results-table th { font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+
+    /* QR placeholder */
+    .qr {
+      width: 68px; height: 68px;
+      background:
+        repeating-linear-gradient(0deg, var(--ink) 0 4px, transparent 4px 8px),
+        repeating-linear-gradient(90deg, var(--ink) 0 4px, transparent 4px 8px);
+      background-blend-mode: multiply;
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--ink);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .qr::before, .qr::after, .qr .x {
+      content: ''; position: absolute; width: 18px; height: 18px;
+      background: var(--bg);
+      box-shadow: inset 0 0 0 4px var(--ink);
+    }
+    .qr::before { top: 4px; left: 4px; }
+    .qr::after { top: 4px; right: 4px; }
+    .qr .x { bottom: 4px; left: 4px; }
+
+    /* Footer */
+    .poster-foot {
+      grid-column: 1 / -1;
+      display: flex; justify-content: space-between; gap: 16px;
+      align-items: center; padding-top: 10px;
+      border-top: 1px solid var(--rule);
+      font-family: var(--mono); font-size: 10px; color: var(--ink-3);
+    }
+    .poster-foot .left { display: flex; gap: 16px; align-items: center; }
+
+    .legend-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-family: var(--mono); font-size: 10px; color: var(--ink-2); }
+    .legend-row .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+    @media (max-width: 1500px) {
+      .poster { transform: scale(0.85); margin: 0 auto; transform-origin: top center; }
+      .poster-wrap { padding-bottom: 200px; }
+    }
+    @media (max-width: 1200px) {
+      .poster { transform: scale(0.7); }
+    }
+    @media (max-width: 1000px) {
+      .poster { transform: scale(0.55); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="poster-wrap">
+  <div class="poster-toolbar">
+    <div class="left">
+      <a href="index.html">← Companion site</a>
+      <span class="meta">A0 portrait · 1440 × 1018 px @ screen scale</span>
+    </div>
+    <div class="left">
+      <span class="meta">Press <span class="kbd">⌘</span> <span class="kbd">P</span> to print / save as PDF</span>
+      <button class="btn" onclick="window.print()" style="font-size:10px; padding:6px 12px;">Print poster</button>
+    </div>
+  </div>
+
+  <div class="poster">
+
+    <!-- =================== HEADER =================== -->
+    <div class="poster-head">
+      <div>
+        <div class="legend-row" style="margin-bottom: 12px; font-size:10px;">
+          <span class="tag tactile">tactile sensing</span>
+          <span class="tag measure">RGB-D · SLAM</span>
+          <span class="tag gauss">3D Gaussian Splatting</span>
+          <span class="tag muted">in-hand manipulation</span>
+        </div>
+        <h1><span class="accent">GaussianFeels</span>: real-time multimodal 3D reconstruction with tactile-enhanced Gaussian splatting.</h1>
+        <p class="deck">An online, object-centric Gaussian map for contact-rich manipulation &mdash; updated under hand-induced occlusion, tracked when pose supervision is removed, and exported to manipulation from frame zero.</p>
+      </div>
+      <div class="meta">
+        <strong>Krishi Attri</strong>
+        Dept. of Mechanical Engineering · SNU<br/>
+        Advisor: <strong style="display:inline; font-size:10px;">Prof. Yong-Lae Park</strong> · Soft Robotics &amp; Bionics Lab<br/>
+        <span class="id">M.S. THESIS · 2024-24243</span>
+        <div style="display:flex; gap:10px; align-items:flex-end; margin-top:8px; justify-content:flex-end;">
+          <div style="text-align:right;">
+            <div style="font-family:var(--serif); font-size:12px; color:var(--ink); font-weight:500;">gaussianfeels</div>
+            <div style="font-size:9px; color:var(--ink-3);">companion site</div>
+          </div>
+          <div class="qr"><div class="x"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== BODY =================== -->
+    <div class="poster-body">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-poster">
+
+        <div class="panel measure">
+          <h3>① Problem</h3>
+          <h2>The geometry that matters is what the camera can't see.</h2>
+          <p>Surfaces hidden by hand and fingertips during in-hand manipulation are exactly what a policy needs. RGB-D covers exposed surfaces; tactile covers a few cm² at contact.</p>
+        </div>
+
+        <div class="panel">
+          <h3>② Research claim</h3>
+          <p>An <strong>explicit object-centric Gaussian map</strong> is a suitable shared state for contact-rich manipulation: updated online from synchronized multimodal observations, tracked under partial visibility, exposed to manipulation as a progressively improving model.</p>
+        </div>
+
+        <div class="panel">
+          <h3>③ Inputs · synchronized frame Ft</h3>
+          <ul style="font-size:10px; line-height:1.4;">
+            <li><strong>I<sub>t</sub>, D<sub>t</sub>, M<sub>t</sub></strong> · RGB, depth, mask</li>
+            <li><strong>K, T<sup>t</sup><sub>WC</sub></strong> · intrinsics + camera pose</li>
+            <li><strong>P<sup>cam</sup><sub>t</sub></strong> · camera point cloud</li>
+            <li><strong>P<sup>tac</sup><sub>t</sub>, N<sup>tac</sup><sub>t</sub></strong> · tactile contacts + normals</li>
+            <li><strong>h<sub>t</sub></strong> · hand state · grasp center FK</li>
+            <li><strong>T<sup>t</sup><sub>WO,GT</sub></strong> · GT pose (optional)</li>
+          </ul>
+        </div>
+
+        <div class="panel tactile">
+          <h3>④ Frame-0 seeding · 24-candidate PCA</h3>
+          <p>Translation seed from FK grasp center or depth-cloud centroid + 2 cm view offset. Rotation seed enumerates all 24 axis-aligned orientations of the PCA frame and minimizes:</p>
+          <div class="eq">
+            ϕ(R<sub>k</sub>) = s<sub>var</sub> + 2 s<sub>cam</sub> + 0.5 s<sub>up</sub> + 10 s<sub>vis</sub> + 100 s<sub>in</sub><span class="num">(4.3)</span>
+          </div>
+          <p>The 100&times; weight on s<sub>in</sub> ensures tactile normals dominate when contacts exist.</p>
+        </div>
+
+        <div class="panel">
+          <h3>⑤ Frozen-map signed distance</h3>
+          <p>Smooth point-cloud SDF analogue used by the tracker:</p>
+          <div class="eq">
+            d<sub>M</sub>(p) = (p − q̃(p))ᵀ ñ(p)<span class="num">(4.7)</span>
+          </div>
+          <p>The frozen map changes only through accepted recent observations; the tracker aligns against a stable reference rather than against splats being optimized.</p>
+        </div>
+
+      </div>
+
+      <!-- CENTER COLUMN -->
+      <div class="col-poster">
+
+        <div class="panel" style="padding: 0; border: none; flex: 1; min-height: 0;">
+          <div class="center-diagram">
+            <div class="h">⑥ System diagram · per-frame data flow</div>
+            <svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <marker id="parr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L8,3 z" fill="oklch(0.7 0.005 80)"/></marker>
+                <marker id="parrW" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L8,3 z" fill="oklch(0.72 0.16 50)"/></marker>
+              </defs>
+
+              <!-- Sensors -->
+              <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.85 0.005 80)">
+                <text x="20" y="20" font-size="9" letter-spacing="2" fill="oklch(0.6 0.005 80)">SENSORS</text>
+
+                <g transform="translate(20, 36)">
+                  <rect width="130" height="42" rx="3" fill="oklch(0.22 0.008 80)" stroke="oklch(0.62 0.13 240)"/>
+                  <text x="10" y="18">RGB-D + mask</text>
+                  <text x="10" y="32" font-size="8" fill="oklch(0.62 0.13 240)">It · Dt · Mt</text>
+                </g>
+                <g transform="translate(20, 96)">
+                  <rect width="130" height="42" rx="3" fill="oklch(0.22 0.008 80)" stroke="oklch(0.72 0.16 50)"/>
+                  <text x="10" y="18">Tactile (DIGIT)</text>
+                  <text x="10" y="32" font-size="8" fill="oklch(0.72 0.16 50)">Pttac, Nttac</text>
+                </g>
+                <g transform="translate(20, 156)">
+                  <rect width="130" height="42" rx="3" fill="oklch(0.22 0.008 80)" stroke="oklch(0.4 0.005 80)"/>
+                  <text x="10" y="18">Hand state</text>
+                  <text x="10" y="32" font-size="8" fill="oklch(0.7 0.005 80)">ht · FK grasp</text>
+                </g>
+              </g>
+
+              <!-- Synchronizer Ft -->
+              <g stroke="oklch(0.55 0.005 80)" stroke-width="1" fill="none" marker-end="url(#parr)">
+                <path d="M 150 57 L 200 130"/>
+                <path d="M 150 117 L 200 138"/>
+                <path d="M 150 177 L 200 146"/>
+              </g>
+
+              <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.85 0.005 80)">
+                <g transform="translate(200, 110)">
+                  <rect width="90" height="62" rx="4" fill="oklch(0.25 0.01 80)" stroke="oklch(0.72 0.16 50)" stroke-width="1.5"/>
+                  <text x="45" y="22" text-anchor="middle" font-size="8" letter-spacing="1.5" fill="oklch(0.72 0.16 50)">SYNC</text>
+                  <text x="45" y="40" text-anchor="middle" font-size="14" fill="oklch(0.95 0.005 80)" font-style="italic">Ft</text>
+                  <text x="45" y="54" text-anchor="middle" font-size="8" fill="oklch(0.7 0.005 80)">eq. (4.1)</text>
+                </g>
+              </g>
+
+              <!-- Tracker -->
+              <g stroke="oklch(0.55 0.005 80)" stroke-width="1" fill="none" marker-end="url(#parr)">
+                <path d="M 290 141 L 320 141"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.85 0.005 80)">
+                <g transform="translate(320, 90)">
+                  <rect width="170" height="100" rx="4" fill="oklch(0.2 0.008 80)" stroke="oklch(0.62 0.13 240)" stroke-width="1.5"/>
+                  <text x="85" y="18" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="oklch(0.62 0.13 240)">POSE TRACKER</text>
+                  <text x="10" y="36" font-size="9">PCA × 24 (frame 0)</text>
+                  <text x="10" y="52" font-size="9">ICP gate · 4 thresholds</text>
+                  <text x="10" y="68" font-size="9">Theseus 2-stage SE(3)</text>
+                  <text x="10" y="84" font-size="9">Frozen-map SDF</text>
+                  <text x="85" y="98" text-anchor="middle" font-size="8" fill="oklch(0.6 0.005 80)">→ TtWO</text>
+                </g>
+              </g>
+
+              <!-- Map -->
+              <g stroke="oklch(0.55 0.005 80)" stroke-width="1" fill="none" marker-end="url(#parr)">
+                <path d="M 490 141 L 520 141"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.85 0.005 80)">
+                <g transform="translate(520, 30)">
+                  <rect width="160" height="220" rx="4" fill="oklch(0.2 0.008 80)" stroke="oklch(0.72 0.12 145)" stroke-width="1.5"/>
+                  <text x="80" y="18" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="oklch(0.72 0.12 145)">OBJECT MAP</text>
+                  <!-- mini splats -->
+                  <g transform="translate(10, 30)">
+                    <ellipse cx="30" cy="28" rx="20" ry="9" fill="oklch(0.62 0.13 240 / 0.5)" transform="rotate(-20 30 28)"/>
+                    <ellipse cx="50" cy="42" rx="14" ry="7" fill="oklch(0.62 0.13 240 / 0.5)" transform="rotate(30 50 42)"/>
+                    <ellipse cx="78" cy="32" rx="18" ry="8" fill="oklch(0.72 0.16 50 / 0.6)" transform="rotate(15 78 32)"/>
+                    <ellipse cx="100" cy="46" rx="12" ry="6" fill="oklch(0.72 0.16 50 / 0.6)"/>
+                    <ellipse cx="120" cy="34" rx="14" ry="7" fill="oklch(0.62 0.13 240 / 0.5)"/>
+                    <ellipse cx="56" cy="62" rx="16" ry="8" fill="oklch(0.62 0.13 240 / 0.5)" transform="rotate(45 56 62)"/>
+                  </g>
+                  <text x="10" y="138" font-size="9">μiO · qiO · siO · αi · ci</text>
+                  <text x="10" y="154" font-size="9" fill="oklch(0.7 0.005 80)">contact-aware spawn</text>
+                  <text x="10" y="170" font-size="9" fill="oklch(0.7 0.005 80)">density boost · freeze</text>
+                  <text x="10" y="186" font-size="9" fill="oklch(0.72 0.16 50)">tactile-region boost</text>
+                  <text x="10" y="206" font-size="8" fill="oklch(0.6 0.005 80)">eqs. (4.9–4.12)</text>
+                </g>
+              </g>
+
+              <!-- Loss reweighting -->
+              <g stroke="oklch(0.72 0.16 50)" stroke-width="1" fill="none" marker-end="url(#parrW)">
+                <path d="M 600 250 C 600 320, 405 330, 405 200"/>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="9" fill="oklch(0.72 0.16 50)">
+                <text x="430" y="320">⑦ occlusion-aware reweight</text>
+                <text x="430" y="334" fill="oklch(0.7 0.005 80)">eq. (4.13–4.17)</text>
+              </g>
+
+              <!-- Manipulation branch -->
+              <g font-family="JetBrains Mono, monospace" font-size="10" fill="oklch(0.85 0.005 80)">
+                <text x="20" y="240" font-size="9" letter-spacing="2" fill="oklch(0.6 0.005 80)">MANIPULATION · GPU 1</text>
+
+                <g transform="translate(20, 256)">
+                  <rect width="170" height="48" rx="3" fill="oklch(0.22 0.008 80)" stroke="oklch(0.72 0.16 50)"/>
+                  <text x="10" y="18" font-size="10">⑧ Frame-0 prior</text>
+                  <text x="10" y="32" font-size="8" fill="oklch(0.7 0.005 80)">Hunyuan3D-2-mini</text>
+                  <text x="10" y="42" font-size="8" fill="oklch(0.7 0.005 80)">orient. variant search</text>
+                </g>
+
+                <g transform="translate(210, 256)">
+                  <rect width="220" height="48" rx="3" fill="oklch(0.22 0.008 80)" stroke="oklch(0.72 0.16 50)"/>
+                  <text x="10" y="18" font-size="10">⑨ Progressive replacement</text>
+                  <text x="10" y="32" font-size="8" fill="oklch(0.7 0.005 80)">measured overwrites generated</text>
+                  <text x="10" y="42" font-size="8" fill="oklch(0.7 0.005 80)">provenance preserved</text>
+                </g>
+
+                <g transform="translate(450, 256)">
+                  <rect width="160" height="48" rx="3" fill="oklch(0.22 0.008 80)" stroke="oklch(0.72 0.16 50)"/>
+                  <text x="10" y="18" font-size="10">⑩ Policy export</text>
+                  <text x="10" y="32" font-size="8" fill="oklch(0.7 0.005 80)">point cloud + flags</text>
+                  <text x="10" y="42" font-size="8" fill="oklch(0.7 0.005 80)">PLY · TtWO trajectory</text>
+                </g>
+
+                <g stroke="oklch(0.5 0.005 80)" stroke-width="1" fill="none" marker-end="url(#parr)">
+                  <path d="M 190 280 L 210 280"/>
+                  <path d="M 430 280 L 450 280"/>
+                </g>
+                <g stroke="oklch(0.5 0.005 80)" stroke-width="1" fill="none" stroke-dasharray="3 3" marker-end="url(#parr)">
+                  <path d="M 105 256 L 105 178"/>
+                  <path d="M 320 256 L 320 192"/>
+                </g>
+              </g>
+
+              <!-- Pose mode pills -->
+              <g font-family="JetBrains Mono, monospace" font-size="9" fill="oklch(0.85 0.005 80)">
+                <text x="20" y="340" letter-spacing="1.5" font-size="9" fill="oklch(0.6 0.005 80)">POSE MODE</text>
+                <rect x="100" y="328" width="60" height="16" fill="oklch(0.62 0.13 240 / 0.18)" stroke="oklch(0.62 0.13 240)"/>
+                <text x="106" y="340" fill="oklch(0.7 0.13 245)">GT</text>
+                <rect x="170" y="328" width="60" height="16" fill="oklch(0.72 0.12 145 / 0.18)" stroke="oklch(0.72 0.12 145)"/>
+                <text x="176" y="340" fill="oklch(0.78 0.12 145)">GT-init</text>
+                <rect x="240" y="328" width="60" height="16" fill="oklch(0.72 0.16 50 / 0.18)" stroke="oklch(0.72 0.16 50)"/>
+                <text x="246" y="340" fill="oklch(0.78 0.16 50)">SLAM</text>
+                <text x="310" y="340" fill="oklch(0.6 0.005 80)">— same loop, different pose source</text>
+              </g>
+
+              <!-- Mini reconstruction visualization at bottom -->
+              <g transform="translate(0, 360)">
+                <text x="20" y="14" font-size="9" letter-spacing="2" fill="oklch(0.6 0.005 80)" font-family="JetBrains Mono, monospace">⑪ ONLINE BEHAVIOR</text>
+              </g>
+
+              <foreignObject x="20" y="380" width="660" height="92">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                  <div style="background: oklch(0.16 0.008 80); border-radius: 4px; aspect-ratio: 16/9; overflow: hidden; position: relative;">
+                    <canvas id="mini-recon" style="width:100%; height:100%; display:block;"></canvas>
+                  </div>
+                  <div style="background: oklch(0.16 0.008 80); border-radius: 4px; aspect-ratio: 16/9; overflow: hidden; position: relative;">
+                    <canvas id="mini-pose" style="width:100%; height:100%; display:block;"></canvas>
+                  </div>
+                  <div style="background: oklch(0.16 0.008 80); border-radius: 4px; aspect-ratio: 16/9; overflow: hidden; position: relative;">
+                    <canvas id="mini-prog" style="width:100%; height:100%; display:block;"></canvas>
+                  </div>
+                </div>
+              </foreignObject>
+            </svg>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>⑦ Online training objective</h3>
+          <div class="eq" style="font-size:12px;">
+            L<sub>core</sub> = λ′<sub>rgb</sub>L<sub>rgb</sub> + λ′<sub>depth</sub>L<sub>depth</sub> + λ′<sub>tactile</sub>L<sub>tactile</sub> + λ<sub>surface</sub>L<sub>surface</sub><span class="num">(4.13)</span>
+          </div>
+          <div class="eq" style="font-size:12px;">
+            s<sub>vis</sub> = 1 − ρ<sub>occ</sub>(1 − w<sub>min</sub>),  λ′<sub>tactile</sub> = (1 + β ρ<sub>occ</sub>) λ<sub>tactile</sub><span class="num">(4.14–4.17)</span>
+          </div>
+          <p>With w<sub>min</sub>=0.2, β=2: tactile supervision overtakes the unoccluded visual baseline at ρ<sub>occ</sub> ≈ 0.4.</p>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-poster">
+
+        <div class="panel gauss">
+          <h3>⑧ Contributions</h3>
+          <ul style="font-size:10px; line-height:1.35;">
+            <li><strong>Object-centric Gaussian map</strong> — object frame; world only on render</li>
+            <li><strong>Tracker in the loop</strong> — Theseus + frozen-map SDF + ICP prior</li>
+            <li><strong>Contact-aware spawn</strong> — insertion + tactile-region boost</li>
+            <li><strong>Occlusion-aware reweighting</strong> — visual ↔ tactile trade-off</li>
+            <li><strong>Dual-process interface</strong> — SLAM ‖ manipulation, separate GPUs</li>
+            <li><strong>Frame-0 image-to-3D bootstrap</strong> — Hunyuan3D-2-mini + search</li>
+            <li><strong>Provenance-preserving update</strong> — measured/generated flags</li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>⑨ Benchmark · frame-0 priors</h3>
+          <table class="results-table">
+            <thead><tr><th>Method</th><th>F@5</th><th>Cuboid</th><th>Used</th></tr></thead>
+            <tbody>
+              <tr style="background: oklch(0.72 0.16 50 / 0.06);"><td><strong>Hunyuan3D-2-mini</strong></td><td>—</td><td>✓</td><td>✓ deployed</td></tr>
+              <tr><td>FastSAM3D</td><td>—</td><td>—</td><td>baseline</td></tr>
+              <tr><td>TripoSR</td><td>— ↑</td><td>blob</td><td>baseline</td></tr>
+              <tr><td>Geco</td><td>collapse</td><td>—</td><td>baseline</td></tr>
+              <tr><td>RGB2Point</td><td>collapse</td><td>—</td><td>baseline</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:10px;">F-score alone fails — TripoSR can outscore Hunyuan3D on a cuboid while rounding it to a blob. Category-faithful win rate reported alongside F@5.</p>
+        </div>
+
+        <div class="panel">
+          <h3>⑩ Reconstruction quality (reserved)</h3>
+          <div class="stat-row">
+            <div class="stat"><div class="k">FeelSight-Sim · F@5</div><div class="v">— <small>↑</small></div></div>
+            <div class="stat"><div class="k">FeelSight-Real · F@5</div><div class="v">— <small>↑</small></div></div>
+            <div class="stat"><div class="k">Occlusion · ADD-S</div><div class="v">— <small>mm ↓</small></div></div>
+            <div class="stat"><div class="k">Runtime</div><div class="v">— <small>FPS ↑</small></div></div>
+          </div>
+        </div>
+
+        <div class="panel" style="background: oklch(0.96 0.008 60);">
+          <h3>⑪ Failure modes</h3>
+          <ul style="font-size:10px; line-height:1.35;">
+            <li><strong>F1 · thin objects</strong> — splats biased outside GT; spawn-scale floor</li>
+            <li><strong>F2 · large motion</strong> — ICP gate (Δt &gt; 50 mm); pose lags 1–2 frames</li>
+            <li><strong>F3 · DIGIT-glow mask drift</strong> — median-area + 60 px filter mitigate</li>
+          </ul>
+        </div>
+
+        <div class="panel dark">
+          <h3>⑫ Take-away</h3>
+          <p style="font-family: var(--serif); font-size: 12px; line-height: 1.45;">An explicit object-centric Gaussian map supports online reconstruction, pose tracking under occlusion, <em>and</em> manipulation export from one shared state — no re-encode between roles.</p>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="poster-foot">
+        <div class="left">
+          <span>GaussianFeels &middot; M.S. Thesis · Spring 2026</span>
+          <span style="color:var(--rule-2);">|</span>
+          <span>Department of Mechanical Engineering, Seoul National University</span>
+        </div>
+        <div class="left">
+          <span class="legend-row">
+            <span><span class="dot" style="background:var(--measure);"></span>measured / camera</span>
+            <span><span class="dot" style="background:var(--tactile);"></span>tactile / generated</span>
+            <span><span class="dot" style="background:var(--gauss);"></span>Gaussian state</span>
+          </span>
+        </div>
+        <div>
+          <a href="index.html" style="color:var(--ink);">→ companion site</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="viz.js"></script>
+<script>
+  GFViz.reconstruction(document.getElementById('mini-recon'), { seed: 12 });
+  GFViz.poseTracking(document.getElementById('mini-pose'), { seed: 23 });
+  GFViz.progReplace(document.getElementById('mini-prog'), { seed: 41 });
+</script>
+
+</body>
+</html>
