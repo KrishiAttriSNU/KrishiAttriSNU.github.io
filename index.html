@@ -15,8 +15,8 @@
 
   <aside class="nav">
     <div class="brand">
-      <div class="mark"><span class="dot"></span><span>GaussianFeels</span></div>
-      <div class="title"><strong>GaussianFeels</strong> · Tactile-Enhanced Gaussian Splatting</div>
+      <div class="title"><strong>GaussianFeels</strong></div>
+      <div class="subtitle">Real-Time Multimodal 3D Reconstruction with Tactile-Enhanced Gaussian Splatting</div>
       <div class="sub">M.S. Thesis · SNU ME · Spring 2026</div>
     </div>
 
@@ -851,10 +851,19 @@
   };
 
   // ToC active highlight
-  const tocLinks = [...document.querySelectorAll('#toc a[href^="#"]')].filter(function(a) { return a.getAttribute('href') !== '#'; });
-  const sections = tocLinks.map(function(a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  var allTocLinks = [...document.querySelectorAll('#toc a[href^="#"]')];
+  var homeLink = allTocLinks.find(function(a) { return a.getAttribute('href') === '#'; });
+  var tocLinks = allTocLinks.filter(function(a) { return a.getAttribute('href') !== '#'; });
+  var sections = tocLinks.map(function(a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
   function update() {
     var y = window.scrollY + 120;
+    // Check if we're before the first section — highlight Home
+    if (sections[0] && window.scrollY < sections[0].offsetTop - 60) {
+      if (homeLink) homeLink.classList.add('active');
+      tocLinks.forEach(function(a) { a.classList.remove('active'); });
+      return;
+    }
+    if (homeLink) homeLink.classList.remove('active');
     var active = sections[0];
     for (var i = 0; i < sections.length; i++) { if (sections[i] && sections[i].offsetTop <= y) active = sections[i]; }
     tocLinks.forEach(function(a) { a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id)); });

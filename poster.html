@@ -202,6 +202,7 @@
     @media (max-width: 1000px) {
       .poster { transform: scale(0.55); }
     }
+    /* ---- dark mode overrides ---- */
     [data-theme="dark"] body { background: #131110; }
     [data-theme="dark"] .poster-toolbar { background: #1a1714; border-color: #2e2924; }
     [data-theme="dark"] .poster-toolbar a { color: #ede8e2; }
@@ -212,12 +213,31 @@
     }
     [data-theme="dark"] .poster h1, [data-theme="dark"] .poster h2,
     [data-theme="dark"] .poster h3, [data-theme="dark"] .poster h4 { color: #ede8e2; }
+    /* panels */
     [data-theme="dark"] .panel { background: #221e1a !important; border-color: #2e2924 !important; }
-    [data-theme="dark"] .panel h3 { color: #ede8e2 !important; }
-    [data-theme="dark"] .panel p, [data-theme="dark"] .panel li, [data-theme="dark"] .panel div { color: #b8b0a8 !important; }
+    [data-theme="dark"] .panel h2 { color: #ede8e2 !important; }
+    [data-theme="dark"] .panel h3 { color: #a89e94 !important; }
+    [data-theme="dark"] .panel p, [data-theme="dark"] .panel li,
+    [data-theme="dark"] .panel ul, [data-theme="dark"] .panel div { color: #b8b0a8 !important; }
     [data-theme="dark"] .panel strong { color: #ede8e2 !important; }
-    [data-theme="dark"] .panel .stat { background: #1a1714; }
-    [data-theme="dark"] .panel .eq { background: #221e1a; border-left-color: #c17c3a; }
+    [data-theme="dark"] .panel.dark { background: #0c0b09 !important; }
+    [data-theme="dark"] .panel.dark p { color: #b8b0a8 !important; }
+    /* stat boxes */
+    [data-theme="dark"] .stat { background: #1a1714; border-color: #2e2924; }
+    [data-theme="dark"] .stat .k { color: #786e64; }
+    [data-theme="dark"] .stat .v { color: #ede8e2; }
+    [data-theme="dark"] .stat .v small { color: #786e64; }
+    /* equation blocks */
+    [data-theme="dark"] .eq { background: #1a1714; color: #ede8e2; border-left-color: #d98c45; }
+    [data-theme="dark"] .eq .num { color: #786e64; }
+    /* table */
+    [data-theme="dark"] .results-table { color: #ede8e2; }
+    [data-theme="dark"] .results-table th { color: #a89e94; }
+    [data-theme="dark"] .results-table th, [data-theme="dark"] .results-table td { border-bottom-color: #2e2924; }
+    /* footer */
+    [data-theme="dark"] .poster-foot { color: #786e64; border-top-color: #2e2924; }
+    [data-theme="dark"] .legend-row { color: #b8b0a8; }
+    [data-theme="dark"] .poster-foot a { color: #ede8e2 !important; }
     [data-theme="dark"] .poster .kbd { background: #2e2924; color: #b8b0a8; border-color: #3e3830; }
   </style>
 </head>
