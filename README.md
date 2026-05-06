@@ -5,7 +5,7 @@
 **M.S. Thesis companion site for _GaussianFeels: Real-time Multimodal 3D Reconstruction with Tactile-Enhanced Gaussian Splatting for In-Hand Manipulation_**
 
 [![Live site](https://img.shields.io/badge/live-krishiattrisnu.github.io-4B8BBE)](https://krishiattrisnu.github.io)
-[![Thesis PDF](https://img.shields.io/badge/PDF-pre--defense_draft-orange)](https://krishiattrisnu.github.io/main.pdf)
+[![Thesis PDF](https://img.shields.io/badge/PDF-available_after_defense-lightgrey)](#)
 [![Poster](https://img.shields.io/badge/poster-view-lightgrey)](https://krishiattrisnu.github.io/poster.html)
 [![M.S. Thesis](https://img.shields.io/badge/M.S._Thesis-Spring_2026-blue)](#)
 
@@ -23,7 +23,7 @@
 |---|---|---|
 | Main site | [`krishiattrisnu.github.io`](https://krishiattrisnu.github.io) | Method overview, benchmarks, failure cases, downloads |
 | Conference poster | [`/poster.html`](https://krishiattrisnu.github.io/poster.html) | Printable A0 poster with interactive Gaussian canvas |
-| Thesis PDF | [`/main.pdf`](https://krishiattrisnu.github.io/main.pdf) | Pre-defense draft (v0.9, May 2026, 72 pp.) |
+| Thesis PDF | — | available after defense &mdash; Spring 2026 |
 
 ## About the project
 
@@ -42,7 +42,6 @@ poster.html         Conference poster page
 styles.css          Shared stylesheet
 hero.js             Animated Gaussian particle hero (WebGL-free, canvas 2D)
 viz.js              Interactive visualizations
-main.pdf            Pre-defense thesis draft
 poster-full.png     Full-resolution poster image
 poster-check.png    Poster thumbnail / preview
 .nojekyll           Disables Jekyll so GitHub Pages serves files as-is
@@ -67,4 +66,4 @@ poster-check.png    Poster thumbnail / preview
 
 - **Companion site:** [krishiattrisnu.github.io](https://krishiattrisnu.github.io)
 - **Code repository:** available after defense at `github.com/KrishiAttriSNU/GaussianFeels`
-- **Thesis PDF:** [krishiattrisnu.github.io/main.pdf](https://krishiattrisnu.github.io/main.pdf)
+- **Thesis PDF:** available after defense
