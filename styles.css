@@ -94,9 +94,8 @@ aside.nav {
   display: flex; flex-direction: column; gap: 24px;
   overflow-y: auto;
 }
-.brand { display: flex; flex-direction: column; gap: 10px; }
-.brand .title { font-family: var(--serif); font-weight: 650; font-size: 26px; letter-spacing: -0.035em; line-height: 1.05; }
-.brand .subtitle { font-size: 13px; color: var(--ink-2); font-family: var(--serif); line-height: 1.45; letter-spacing: -0.01em; border-left: 2px solid var(--tactile); padding-left: 10px; }
+.brand { display: flex; flex-direction: column; gap: 8px; }
+.brand .title { font-family: var(--serif); font-weight: 650; font-size: 30px; letter-spacing: -0.035em; line-height: 1.05; color: var(--tactile); }
 .brand .sub { font-size: 10px; color: var(--ink-3); font-family: var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
 
 .toc { display: flex; flex-direction: column; gap: 2px; font-family: var(--mono); font-size: 12px; }
