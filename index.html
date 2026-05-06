@@ -159,20 +159,20 @@
     </section>
 
     <!-- ======================================================== METHOD -->
-    <section id="method" class="dark">
+    <section id="method">
       <div class="section-head">
-        <div class="num" style="color:oklch(0.6 0.005 80);">02 / Method</div>
+        <div class="num">02 / Method</div>
         <div>
           <h4 style="color:var(--tactile);">Object-centric Gaussian map · pose tracker · occlusion-aware loss</h4>
           <h2>Four parts, all reconstructing the same object frame.</h2>
-          <p class="lead" style="color:oklch(0.78 0.005 80);">Sensor ingestion synchronizes RGB-D, segmentation, tactile contacts, and hand state. The Gaussian map lives in object coordinates and is synchronized to world only when rendering or supervision needs it. The pose tracker sits in the middle of the loop — it's the transform that links observations to the map.</p>
+          <p class="lead">Sensor ingestion synchronizes RGB-D, segmentation, tactile contacts, and hand state. The Gaussian map lives in object coordinates and is synchronized to world only when rendering or supervision needs it. The pose tracker sits in the middle of the loop — it's the transform that links observations to the map.</p>
         </div>
       </div>
 
       <div class="col-wide">
         <!-- Method diagram (SVG) -->
         <figure class="full" style="margin: 32px 64px;">
-          <div class="frame dark" style="padding: 56px 48px; background: oklch(0.18 0.008 80);">
+          <div class="frame dark" style="padding: 56px 48px;">
             <svg viewBox="0 0 1200 460" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
               <defs>
                 <marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -763,38 +763,39 @@
       </div>
     </section>
 
-    <footer class="site">
-      <div class="row">
-        <div>
-          <h4>GaussianFeels</h4>
-          <div>Real-time multimodal 3D reconstruction with tactile-enhanced Gaussian splatting.</div>
-          <div style="margin-top:6px;">M.S. Thesis · Krishi Attri · Spring 2026</div>
-        </div>
-        <div>
-          <h4>Sections</h4>
-          <a href="#problem">Problem</a><br/>
-          <a href="#method">Method</a><br/>
-          <a href="#pipeline">Pipeline</a><br/>
-          <a href="#videos">Experiments</a><br/>
-          <a href="#benchmarks">Benchmarks</a>
-        </div>
-        <div>
-          <h4>More</h4>
-          <a href="#failures">Failure cases</a><br/>
-          <a href="#status">Project status</a><br/>
-          <a href="poster.html">Conference poster →</a>
-        </div>
-        <div>
-          <h4>Affiliation</h4>
-          <div>Department of Mechanical Engineering<br/>Seoul National University<br/>Advisor: Prof. Yong-Lae Park</div>
-        </div>
-      </div>
-      <div style="margin-top:32px; padding-top:16px; border-top:1px solid oklch(0.25 0.01 80); color:oklch(0.55 0.005 80); font-size:11px;">
-        Companion website built May 2026 · figures derived from the thesis manuscript · animated visualizations are illustrative.
-      </div>
-    </footer>
   </main>
 </div>
+
+<footer class="site">
+  <div class="row">
+    <div>
+      <h4>GaussianFeels</h4>
+      <div>Real-time multimodal 3D reconstruction with tactile-enhanced Gaussian splatting.</div>
+      <div style="margin-top:6px;">M.S. Thesis · Krishi Attri · Spring 2026</div>
+    </div>
+    <div>
+      <h4>Sections</h4>
+      <a href="#problem">Problem</a><br/>
+      <a href="#method">Method</a><br/>
+      <a href="#pipeline">Pipeline</a><br/>
+      <a href="#videos">Experiments</a><br/>
+      <a href="#benchmarks">Benchmarks</a>
+    </div>
+    <div>
+      <h4>More</h4>
+      <a href="#failures">Failure cases</a><br/>
+      <a href="#status">Project status</a><br/>
+      <a href="poster.html">Conference poster →</a>
+    </div>
+    <div>
+      <h4>Affiliation</h4>
+      <div>Department of Mechanical Engineering<br/>Seoul National University<br/>Advisor: Prof. Yong-Lae Park</div>
+    </div>
+  </div>
+  <div style="margin-top:32px; padding-top:16px; border-top:1px solid var(--dark-panel-rule); color:var(--dark-panel-ink-3); font-size:11px;">
+    Companion website built May 2026 · figures derived from the thesis manuscript · animated visualizations are illustrative.
+  </div>
+</footer>
 
 <script src="hero.js"></script>
 <script src="viz.js"></script>

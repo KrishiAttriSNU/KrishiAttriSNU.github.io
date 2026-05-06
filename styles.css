@@ -51,7 +51,7 @@ footer.site, .toc a, .btn, .math-block, .callout,
 .thtable td, .thtable th { transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease; }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; overflow-x: hidden; }
+html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; overflow-x: clip; }
 body {
   font-family: var(--sans);
   font-size: 16px;
