@@ -9,24 +9,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    body { background: oklch(0.93 0.008 80); }
+    body { background: #e8e2da; }
     .poster-wrap {
-      max-width: 1480px; margin: 32px auto; padding: 24px;
+      width: 100%; margin: 0; padding: 24px; box-sizing: border-box;
     }
     .poster-toolbar {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 24px; padding: 12px 24px; background: var(--bg);
-      border: 1px solid var(--rule); border-radius: 8px;
+      margin-bottom: 24px; padding: 12px 24px; background: #faf8f5;
+      border: 1px solid #d5cfc8; border-radius: 8px;
       font-family: var(--mono); font-size: 12px;
     }
     .poster-toolbar .left { display: flex; gap: 16px; align-items: center; }
-    .poster-toolbar a { color: var(--ink); text-decoration: none; }
-    .poster-toolbar .meta { color: var(--ink-3); }
+    .poster-toolbar a { color: #1a1714; text-decoration: none; }
+    .poster-toolbar .meta { color: #7a6f64; }
 
     .poster {
       width: 1440px; height: 1018px; /* A0 portrait-ish 16:11 ratio for screen */
-      background: var(--bg);
-      border: 1px solid var(--rule);
+      background: #faf8f5;
+      border: 1px solid #d5cfc8;
       border-radius: 8px;
       box-shadow: 0 30px 80px -20px oklch(0.2 0.01 80 / 0.25);
       padding: 32px 44px;
@@ -50,7 +50,7 @@
       display: grid; grid-template-columns: 1fr auto;
       gap: 28px; align-items: end;
       padding-bottom: 14px;
-      border-bottom: 2px solid var(--ink);
+      border-bottom: 2px solid #1a1714;
     }
     .poster-head h1 {
       font-size: 36px; line-height: 1.04; letter-spacing: -0.03em; margin: 0;
@@ -59,15 +59,15 @@
     .poster-head h1 .accent { color: var(--tactile); }
     .poster-head .deck {
       font-family: var(--serif); font-weight: 400;
-      font-size: 14px; color: var(--ink-2); margin-top: 6px; max-width: 90ch;
+      font-size: 14px; color: #3d3530; margin-top: 6px; max-width: 90ch;
     }
     .poster-head .badges { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
     .poster-head .meta {
-      font-family: var(--mono); font-size: 10px; color: var(--ink-2);
+      font-family: var(--mono); font-size: 10px; color: #3d3530;
       text-align: right; line-height: 1.55;
     }
-    .poster-head .meta strong { color: var(--ink); display: block; font-size: 12px; margin-bottom: 2px; font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
-    .poster-head .meta .id { display: inline-block; padding: 2px 7px; background: var(--ink); color: var(--bg); border-radius: 100px; font-size: 9px; letter-spacing: 0.1em; margin-top: 3px; }
+    .poster-head .meta strong { color: #1a1714; display: block; font-size: 12px; margin-bottom: 2px; font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
+    .poster-head .meta .id { display: inline-block; padding: 2px 7px; background: #1a1714; color: #faf8f5; border-radius: 100px; font-size: 9px; letter-spacing: 0.1em; margin-top: 3px; }
 
     /* Body grid */
     .poster-body {
@@ -79,8 +79,8 @@
     }
     .col-poster { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: hidden; }
     .panel {
-      border: 1px solid var(--rule);
-      background: var(--bg);
+      border: 1px solid #d5cfc8;
+      background: #faf8f5;
       border-radius: 6px;
       padding: 9px 12px;
       display: flex; flex-direction: column; gap: 4px;
@@ -88,20 +88,20 @@
     }
     .panel h3 {
       font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
-      font-family: var(--mono); font-weight: 500; color: var(--ink-3); margin: 0 0 2px;
+      font-family: var(--mono); font-weight: 600; color: #7a6f64; margin: 0 0 2px;
     }
     .panel h2 {
-      font-size: 15px; margin: 0; letter-spacing: -0.015em; line-height: 1.2;
+      font-size: 15px; margin: 0; letter-spacing: -0.015em; line-height: 1.2; color: #1a1714;
     }
-    .panel p { font-size: 11px; line-height: 1.45; color: var(--ink-2); margin: 0; max-width: none; }
-    .panel ul { margin: 2px 0 0; padding-left: 14px; font-size: 11px; line-height: 1.45; color: var(--ink-2); }
-    .panel ul li { margin-bottom: 1px; }
-    .panel ul li strong { color: var(--ink); }
+    .panel p { font-size: 11px; line-height: 1.5; color: #3d3530; margin: 0; max-width: none; }
+    .panel ul { margin: 2px 0 0; padding-left: 14px; font-size: 11px; line-height: 1.5; color: #3d3530; }
+    .panel ul li { margin-bottom: 2px; }
+    .panel ul li strong { color: #1a1714; }
 
-    .panel.dark { background: oklch(0.16 0.008 80); color: oklch(0.92 0.005 80); border-color: oklch(0.16 0.008 80); }
-    .panel.dark h2 { color: oklch(0.97 0.005 80); }
-    .panel.dark h3 { color: oklch(0.7 0.005 80); }
-    .panel.dark p { color: oklch(0.78 0.005 80); }
+    .panel.dark { background: #1e1a17; color: #ede8e2; border-color: #1e1a17; }
+    .panel.dark h2 { color: #f5f1eb; }
+    .panel.dark h3 { color: #a89e94; }
+    .panel.dark p { color: #cdc5bb; font-size: 12px; }
 
     .panel.tactile { border-color: var(--tactile); border-width: 1px; border-left-width: 4px; }
     .panel.measure { border-color: var(--measure); border-width: 1px; border-left-width: 4px; }
@@ -114,26 +114,27 @@
     .stat {
       flex: 1 1 calc(50% - 6px);
       padding: 8px 10px;
-      background: var(--bg-2);
+      background: #f0ece6;
       border-radius: 4px;
-      border: 1px solid var(--rule);
+      border: 1px solid #d5cfc8;
     }
-    .stat .k { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
-    .stat .v { font-family: var(--serif); font-size: 18px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; margin-top: 2px; }
-    .stat .v small { font-size: 9.5px; color: var(--ink-3); font-family: var(--mono); margin-left: 4px; font-weight: 400; }
+    .stat .k { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6f64; }
+    .stat .v { font-family: var(--serif); font-size: 18px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; margin-top: 2px; color: #1a1714; }
+    .stat .v small { font-size: 9.5px; color: #7a6f64; font-family: var(--mono); margin-left: 4px; font-weight: 400; }
 
     .eq {
       font-family: 'Latin Modern Math', 'Cambria Math', serif;
       font-style: italic;
       font-size: 11px;
       line-height: 1.5;
-      background: var(--bg-2);
+      background: #ede9e3;
       padding: 6px 10px;
       border-radius: 4px;
-      border-left: 2px solid var(--tactile);
+      border-left: 2px solid #c17c3a;
       margin: 2px 0;
+      color: #1a1714;
     }
-    .eq .num { float: right; color: var(--ink-3); font-family: var(--mono); font-style: normal; font-size: 9.5px; }
+    .eq .num { float: right; color: #7a6f64; font-family: var(--mono); font-style: normal; font-size: 9.5px; }
 
     /* Center diagram panel */
     .center-diagram {
@@ -151,10 +152,10 @@
     .center-diagram svg { width: 100%; height: 100%; flex: 1; min-height: 0; }
 
     .results-table {
-      width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px;
+      width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px; color: #1a1714;
     }
-    .results-table th, .results-table td { padding: 3px 6px; border-bottom: 1px solid var(--rule); text-align: left; font-size: 10px; }
-    .results-table th { font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+    .results-table th, .results-table td { padding: 3px 6px; border-bottom: 1px solid #d5cfc8; text-align: left; font-size: 10px; }
+    .results-table th { font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6f64; font-weight: 600; }
 
     /* QR placeholder */
     .qr {
@@ -182,12 +183,12 @@
       grid-column: 1 / -1;
       display: flex; justify-content: space-between; gap: 16px;
       align-items: center; padding-top: 10px;
-      border-top: 1px solid var(--rule);
-      font-family: var(--mono); font-size: 10px; color: var(--ink-3);
+      border-top: 1px solid #d5cfc8;
+      font-family: var(--mono); font-size: 10px; color: #7a6f64;
     }
     .poster-foot .left { display: flex; gap: 16px; align-items: center; }
 
-    .legend-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-family: var(--mono); font-size: 10px; color: var(--ink-2); }
+    .legend-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-family: var(--mono); font-size: 10px; color: #3d3530; }
     .legend-row .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 
     @media (max-width: 1500px) {
@@ -516,7 +517,7 @@
           </div>
         </div>
 
-        <div class="panel" style="background: oklch(0.96 0.008 60);">
+        <div class="panel" style="background: #f5f0e8; border-color: #c8b899;">
           <h3>⑪ Failure modes</h3>
           <ul style="font-size:10px; line-height:1.35;">
             <li><strong>F1 · thin objects</strong> — splats biased outside GT; spawn-scale floor</li>
@@ -547,7 +548,7 @@
           </span>
         </div>
         <div>
-          <a href="index.html" style="color:var(--ink);">→ companion site</a>
+          <a href="index.html" style="color:#3d3530;">→ companion site</a>
         </div>
       </div>
 

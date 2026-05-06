@@ -41,7 +41,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
+html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; overflow-x: hidden; }
 body {
   font-family: var(--sans);
   font-size: 16px;
@@ -71,7 +71,7 @@ em { font-style: italic; }
 strong { font-weight: 600; }
 
 /* ========== Layout ========== */
-.shell { display: grid; grid-template-columns: 240px 1fr; width: 100%; }
+.shell { display: grid; grid-template-columns: 240px 1fr; width: 100%; min-height: 100vh; }
 
 aside.nav {
   position: sticky; top: 0; align-self: start;
@@ -99,11 +99,11 @@ aside.nav {
 .aside-foot { margin-top: auto; font-size: 11px; color: var(--ink-3); font-family: var(--mono); line-height: 1.6; }
 .aside-foot a { color: var(--ink-3); }
 
-main { min-width: 0; max-width: 1200px; }
+main { min-width: 0; width: 100%; }
 
 section { padding: 96px 64px; border-bottom: 1px solid var(--rule); position: relative; }
 section.tight { padding: 64px 64px; }
-section.dark { background: var(--dark-panel); color: var(--dark-panel-ink); border-bottom: none; }
+section.dark { background: var(--dark-panel); color: var(--dark-panel-ink); border-bottom: none; margin-left: 0; margin-right: 0; }
 section.dark h1, section.dark h2, section.dark h3 { color: var(--dark-panel-ink); }
 section.dark h4 { color: var(--dark-panel-ink-3); }
 section.dark p { color: var(--dark-panel-ink-2); }
@@ -145,7 +145,7 @@ section.dark .math-block .eq-num { color: var(--dark-panel-ink-3); }
 
 .hero-canvas {
   position: absolute; top: 0; right: 0; width: 48%; height: 100%;
-  pointer-events: none; opacity: 0.9;
+  pointer-events: none; opacity: 0.9; background: transparent;
 }
 
 /* ========== Figures and inserts ========== */
